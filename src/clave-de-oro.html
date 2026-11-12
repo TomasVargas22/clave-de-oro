@@ -1,0 +1,3025 @@
+<title>Clave de Oro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Juego de preguntas de lenguaje musical (notas, claves, ritmo, métrica, melodía, armaduras, tonalidad y armonía): 15 preguntas, 4 comodines y una escalera de premios hasta $1,000,000.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@400;600&family=Cinzel:wght@500;700;800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: estudio de TV nocturno. Escenario central (pregunta sobre un pentagrama, cuatro respuestas unidas por líneas del pentagrama), escalera de premios como columna lateral que en móvil pasa a cajón deslizable. Diseño de un solo tema oscuro, elegido a propósito. */
+:root {
+  --night-0: #05051a;
+  --night-1: #0d1b3a;
+  --night-2: #142a57;
+  --face-0: #132a5c;
+  --face-1: #091536;
+  --gold: #e9c46a;
+  --gold-hi: #fff0bf;
+  --gold-deep: #9a7223;
+  --cyan: #3fd8ff;
+  --cyan-dim: #1d5f8c;
+  --ink: #eef3ff;
+  --ink-dim: #a3b4da;
+  --ink-faint: #61739c;
+  --ink-dark: #1a1205;
+  --amber: #ff9a1f;
+  --amber-deep: #c25a00;
+  --emerald: #18d47b;
+  --emerald-deep: #07804a;
+  --crimson: #e3263f;
+  --crimson-deep: #7d0b1c;
+  --staff: rgba(63, 216, 255, 0.28);
+  --overlay: rgba(2, 3, 16, 0.78);
+
+  --font-display: "Cinzel", "Trajan Pro", "Times New Roman", Georgia, serif;
+  --font-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-num: "Chivo Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --step--1: 0.8125rem;
+  --step-0: 1rem;
+  --step-1: 1.1875rem;
+  --step-2: 1.5rem;
+  --step-3: 2rem;
+  --step-4: clamp(2.5rem, 6vw, 4.25rem);
+
+  --cut: 16px;
+  --radius: 10px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background: var(--night-0);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+p { margin: 0; }
+
+/* ---------- Escenario de fondo ---------- */
+.stage-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 0%, var(--night-2) 0%, var(--night-1) 35%, var(--night-0) 78%),
+    var(--night-0);
+}
+.stage-bg .beam {
+  position: absolute; top: -20vh; width: 38vw; height: 120vh;
+  background: linear-gradient(180deg, rgba(63, 216, 255, 0.13), rgba(63, 216, 255, 0) 75%);
+  filter: blur(18px);
+  transform-origin: 50% 0;
+}
+.stage-bg .beam.b1 { left: 4vw; transform: rotate(-16deg); animation: sway 14s ease-in-out infinite alternate; }
+.stage-bg .beam.b2 { right: 4vw; transform: rotate(16deg); animation: sway2 17s ease-in-out infinite alternate; }
+.stage-bg .beam.b3 {
+  left: 31vw; width: 38vw;
+  background: linear-gradient(180deg, rgba(233, 196, 106, 0.10), rgba(233, 196, 106, 0) 70%);
+  transform: rotate(0deg); animation: none;
+}
+.stage-bg .floor {
+  position: absolute; left: 50%; bottom: -30vh; width: 120vw; height: 60vh; transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(63, 216, 255, 0.16), rgba(63, 216, 255, 0) 65%);
+}
+@keyframes sway { from { transform: rotate(-20deg); } to { transform: rotate(-9deg); } }
+@keyframes sway2 { from { transform: rotate(20deg); } to { transform: rotate(9deg); } }
+
+/* ---------- Estructura ---------- */
+.app {
+  position: relative; z-index: 1;
+  max-width: 1240px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 14px 40px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--gold); }
+.brand svg { width: 34px; height: 34px; flex: none; }
+.brand-name { white-space: nowrap; font-family: var(--font-display); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; font-size: var(--step-0); }
+.topbar-actions { display: flex; gap: 8px; }
+.icon-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 14px; border-radius: 999px;
+  background: rgba(13, 27, 58, 0.7); border: 1px solid rgba(63, 216, 255, 0.35);
+  cursor: pointer; font-size: var(--step--1); font-weight: 600; letter-spacing: 0.04em;
+  transition: border-color .2s, background .2s;
+}
+.icon-btn:hover { border-color: var(--cyan); background: rgba(20, 42, 87, 0.9); }
+.icon-btn svg { width: 18px; height: 18px; flex: none; }
+.icon-btn span { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.icon-btn .sound-off { display: none; }
+.icon-btn[aria-pressed="true"] .sound-on { display: none; }
+.icon-btn[aria-pressed="true"] .sound-off { display: inline; }
+.ladder-toggle { display: none; }
+
+.screen { display: flex; flex-direction: column; gap: 22px; }
+.screen[hidden] { display: none !important; }
+
+.eyebrow {
+  font-size: var(--step--1); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cyan);
+}
+.panel {
+  background: linear-gradient(180deg, rgba(19, 42, 92, 0.55), rgba(9, 21, 54, 0.75));
+  border: 1px solid rgba(63, 216, 255, 0.22);
+  border-radius: var(--radius);
+  padding: 20px;
+  min-width: 0;
+}
+.panel h2 { font-family: var(--font-display); font-size: var(--step-1); color: var(--gold); letter-spacing: 0.06em; margin-bottom: 14px; }
+
+/* ---------- Botones principales ---------- */
+.btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; padding: 0 26px; border: 0; cursor: pointer;
+  font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: var(--step--1);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  transition: filter .2s, transform .15s;
+}
+.btn:active { transform: translateY(1px); }
+.btn-gold { background: linear-gradient(180deg, var(--gold-hi), var(--gold) 45%, var(--gold-deep)); color: var(--ink-dark); }
+.btn-gold:hover { filter: brightness(1.08) drop-shadow(0 0 10px rgba(233, 196, 106, .6)); }
+.btn-ghost { background: rgba(63, 216, 255, 0.12); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(63, 216, 255, 0.5); }
+.btn-ghost:hover { background: rgba(63, 216, 255, 0.22); }
+.btn-danger { background: linear-gradient(180deg, #ff6b7d, var(--crimson) 50%, var(--crimson-deep)); color: #fff; }
+.btn:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
+
+/* ---------- Pantalla de inicio ---------- */
+.hero {
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: center;
+  padding-block: 18px 6px;
+}
+.hero-copy { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.hero-title {
+  font-family: var(--font-display); font-weight: 800; font-size: var(--step-4); line-height: 1.02; letter-spacing: 0.04em;
+  background: linear-gradient(180deg, var(--gold-hi) 10%, var(--gold) 55%, var(--gold-deep) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 18px rgba(233, 196, 106, 0.25));
+}
+.hero-title small { display: block; font-size: 0.36em; letter-spacing: 0.22em; margin-top: 8px; }
+.hero-lead { color: var(--ink-dim); font-size: var(--step-1); max-width: 34em; }
+.start-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 220px; min-width: 0; }
+.field label { font-size: var(--step--1); font-weight: 600; color: var(--ink-dim); letter-spacing: 0.04em; }
+.field input {
+  min-height: 48px; padding: 0 14px; border-radius: 8px;
+  border: 1px solid rgba(63, 216, 255, 0.4); background: rgba(5, 5, 26, 0.7); color: var(--ink);
+  font: inherit; font-size: var(--step-0);
+}
+.field input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(233, 196, 106, 0.25); }
+
+.hero-visual { position: relative; display: flex; justify-content: center; min-width: 0; }
+.mini-ladder { list-style: none; margin: 0; padding: 0; width: min(100%, 330px); display: flex; flex-direction: column; gap: 3px; }
+.mini-ladder li {
+  display: flex; justify-content: space-between; padding: 4px 14px; border-radius: 4px;
+  font-family: var(--font-num); font-size: var(--step--1); color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.mini-ladder li.safe { color: var(--gold); background: rgba(233, 196, 106, 0.08); }
+.mini-ladder li.top { color: var(--gold-hi); background: linear-gradient(90deg, rgba(233, 196, 106, 0.25), rgba(233, 196, 106, 0.05)); font-weight: 600; }
+
+.start-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.rules { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.rules li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; color: var(--ink-dim); font-size: 0.95rem; }
+.rules b { color: var(--ink); font-weight: 600; }
+.rules .r-ico { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: rgba(63, 216, 255, 0.12); color: var(--cyan); font-family: var(--font-num); font-size: 0.7rem; font-weight: 600; }
+.kbd { font-family: var(--font-num); font-size: 0.78em; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--ink-faint); color: var(--ink); }
+
+.board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; counter-reset: rank; }
+.board li {
+  display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  padding: 8px 10px; border-radius: 6px; background: rgba(5, 5, 26, 0.45);
+  font-size: 0.95rem;
+}
+.board li.is-new { background: linear-gradient(90deg, rgba(233, 196, 106, 0.28), rgba(233, 196, 106, 0.06)); box-shadow: inset 0 0 0 1px rgba(233, 196, 106, 0.6); }
+.board .b-rank { font-family: var(--font-num); color: var(--gold); text-align: center; font-weight: 600; }
+.board .b-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.board .b-meta { display: block; font-size: 0.75rem; color: var(--ink-faint); }
+.board .b-amt { font-family: var(--font-num); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.empty-note { color: var(--ink-faint); font-size: 0.95rem; }
+
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.stats div { padding: 10px 12px; border-radius: 6px; background: rgba(5, 5, 26, 0.45); min-width: 0; }
+.stats dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-faint); }
+.stats dd { margin: 2px 0 0; font-family: var(--font-num); font-size: var(--step-1); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.link-btn { margin-top: 14px; background: none; border: 0; padding: 0; color: var(--ink-faint); text-decoration: underline; cursor: pointer; font-size: var(--step--1); }
+.link-btn:hover { color: var(--ink-dim); }
+
+/* ---------- Pantalla de juego ---------- */
+.game-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 22px; align-items: start; }
+.play { display: flex; flex-direction: column; gap: 18px; min-width: 0; overflow-x: hidden; overflow-x: clip; padding-block: 4px 10px; }
+
+.hud { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 14px; }
+.lifelines { display: flex; gap: 8px; flex-wrap: wrap; }
+.lifeline {
+  position: relative; width: 64px; height: 48px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  background: radial-gradient(ellipse at 50% 30%, var(--face-0), var(--face-1));
+  border: 2px solid var(--cyan-dim); color: var(--ink);
+  transition: border-color .2s, transform .15s, box-shadow .2s, opacity .2s;
+}
+.lifeline svg { width: 22px; height: 22px; }
+.lifeline .ll-text { font-family: var(--font-num); font-weight: 600; font-size: 0.85rem; }
+@media (hover: hover) { .lifeline:hover:not(:disabled) { border-color: var(--cyan); box-shadow: 0 0 14px rgba(63, 216, 255, 0.55); transform: translateY(-1px); } }
+.lifeline:disabled { cursor: not-allowed; }
+.lifeline.is-used { opacity: .35; }
+.lifeline.is-used::after {
+  content: ""; position: absolute; inset: 6px 10px;
+  background:
+    linear-gradient(35deg, transparent calc(50% - 1.5px), var(--crimson) calc(50% - 1.5px), var(--crimson) calc(50% + 1.5px), transparent calc(50% + 1.5px)),
+    linear-gradient(-35deg, transparent calc(50% - 1.5px), var(--crimson) calc(50% - 1.5px), var(--crimson) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+}
+.lifeline.is-locked { opacity: .5; border-style: dashed; }
+.lifeline .ll-lock {
+  position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%);
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; white-space: nowrap;
+  padding: 1px 6px; border-radius: 999px; background: var(--night-0); border: 1px solid var(--ink-faint); color: var(--ink-dim);
+}
+.lifeline:not(.is-locked) .ll-lock { display: none; }
+
+.timer { position: relative; width: 78px; height: 78px; justify-self: center; }
+.timer svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.timer .t-track { fill: rgba(5, 5, 26, 0.8); stroke: rgba(63, 216, 255, 0.15); stroke-width: 6; }
+.timer .t-bar { fill: none; stroke: var(--cyan); stroke-width: 6; stroke-linecap: round; transition: stroke .3s; filter: drop-shadow(0 0 5px rgba(63, 216, 255, 0.7)); }
+.timer .t-num {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-family: var(--font-num); font-weight: 600; font-size: 1.45rem; font-variant-numeric: tabular-nums;
+}
+.timer.is-warn .t-bar { stroke: var(--amber); filter: drop-shadow(0 0 5px rgba(255, 154, 31, 0.8)); }
+.timer.is-danger .t-bar { stroke: var(--crimson); filter: drop-shadow(0 0 6px rgba(227, 38, 63, 0.9)); }
+.timer.is-danger .t-num { color: #ff8a98; animation: beat .5s ease-in-out infinite alternate; }
+.timer.is-paused .t-num { color: var(--ink-faint); }
+@keyframes beat { from { transform: scale(1); } to { transform: scale(1.12); } }
+
+.withdraw-wrap { justify-self: end; }
+.withdraw-btn { min-height: 44px; padding: 0 16px; font-size: 0.75rem; }
+.withdraw-btn .w-amt { font-family: var(--font-num); text-transform: none; letter-spacing: 0; }
+
+.level-strip { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px;
+  font-size: var(--step--1); background: rgba(5, 5, 26, 0.6); border: 1px solid rgba(63, 216, 255, 0.25); color: var(--ink-dim);
+}
+.chip b { color: var(--ink); font-family: var(--font-num); font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip.tier-1 { border-color: rgba(24, 212, 123, 0.5); }
+.chip.tier-2 { border-color: rgba(255, 154, 31, 0.55); }
+.chip.tier-3 { border-color: rgba(227, 38, 63, 0.6); }
+.chip.gold { border-color: rgba(233, 196, 106, 0.6); }
+.chip.gold b { color: var(--gold); }
+
+/* Pregunta sobre un pentagrama */
+.question-wrap { position: relative; padding: 10px 0; }
+.question-wrap::before {
+  content: ""; position: absolute; left: -100vw; right: -100vw; top: 50%; height: 49px; transform: translateY(-50%);
+  background: repeating-linear-gradient(180deg, var(--staff) 0 1px, transparent 1px 12px);
+  pointer-events: none;
+}
+.chamfer { position: relative; isolation: isolate; }
+.chamfer > .shape {
+  --c: var(--cut);
+  position: absolute; inset: 0; z-index: -1;
+  clip-path: polygon(var(--c) 0, 100% 0, 100% calc(100% - var(--c)), calc(100% - var(--c)) 100%, 0 100%, 0 var(--c));
+  background: linear-gradient(180deg, var(--cyan), var(--cyan-dim));
+  transition: background .25s;
+}
+.chamfer > .shape::after {
+  --ci: calc(var(--c) - 1px);
+  content: ""; position: absolute; inset: 2px;
+  clip-path: polygon(var(--ci) 0, 100% 0, 100% calc(100% - var(--ci)), calc(100% - var(--ci)) 100%, 0 100%, 0 var(--ci));
+  background: linear-gradient(180deg, var(--face-0), var(--face-1));
+  transition: background .25s;
+}
+.question-card { padding: 26px clamp(18px, 4vw, 44px); min-height: 118px; display: grid; place-items: center; filter: drop-shadow(0 0 16px rgba(63, 216, 255, 0.28)); }
+.question-card > .shape { --c: 24px; background: linear-gradient(180deg, var(--gold-hi), var(--gold) 40%, var(--gold-deep)); }
+.question-card > .shape::after { background: radial-gradient(ellipse 80% 120% at 50% 0%, #19346e, var(--face-1) 70%); }
+.q-text { font-size: clamp(1.1rem, 2.1vw, 1.5rem); font-weight: 600; line-height: 1.38; text-align: center; max-width: 46ch; text-wrap: balance; }
+.q-topic { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); z-index: 2; white-space: nowrap; }
+.q-topic span {
+  display: inline-block; padding: 2px 12px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--night-0); border: 1px solid var(--gold); color: var(--gold);
+}
+
+/* Respuestas */
+.answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; }
+.slot { position: relative; min-width: 0; }
+.slot::before {
+  content: ""; position: absolute; top: 50%; height: 2px; transform: translateY(-50%);
+  background: linear-gradient(90deg, rgba(63, 216, 255, 0.0), var(--staff) 20%, var(--staff) 80%, rgba(63, 216, 255, 0.0));
+  pointer-events: none;
+}
+.slot:nth-child(odd)::before { left: -100vw; right: -12px; background: var(--staff); height: 1px; }
+.slot:nth-child(even)::before { left: -12px; right: -100vw; background: var(--staff); height: 1px; }
+.answer {
+  width: 100%; min-height: 66px; padding: 12px 22px 12px 18px;
+  display: flex; align-items: center; gap: 14px;
+  background: none; border: 0; cursor: pointer; text-align: left;
+  font-size: var(--step-0); font-weight: 500;
+  transition: filter .2s, opacity .3s, transform .15s;
+}
+.answer > .shape { background: linear-gradient(180deg, #6fe4ff, var(--cyan-dim)); }
+.ans-letter { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: var(--gold); flex: none; width: 1.4em; text-align: center; }
+.ans-text { min-width: 0; overflow-wrap: anywhere; line-height: 1.3; }
+@media (hover: hover) {
+  .answer:hover:not(:disabled) { filter: drop-shadow(0 0 10px rgba(63, 216, 255, 0.7)); }
+  .answer:hover:not(:disabled) > .shape::after { background: linear-gradient(180deg, #1b3a7a, #0e2150); }
+}
+.answer:disabled { cursor: default; }
+
+.answer.is-chosen > .shape { background: linear-gradient(180deg, var(--gold-hi), var(--gold-deep)); }
+.answer.is-chosen > .shape::after { background: linear-gradient(180deg, #2a3260, #121a40); }
+.answer.is-chosen { filter: drop-shadow(0 0 10px rgba(233, 196, 106, 0.55)); }
+
+.answer.is-locked > .shape { background: linear-gradient(180deg, #ffd08a, var(--amber-deep)); }
+.answer.is-locked > .shape::after { background: linear-gradient(180deg, #ffb347, var(--amber) 50%, #e07400); }
+.answer.is-locked { color: var(--ink-dark); animation: lockPulse 1s ease-in-out infinite; }
+.answer.is-locked .ans-letter { color: var(--ink-dark); }
+@keyframes lockPulse {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(255, 154, 31, 0.55)); }
+  50% { filter: drop-shadow(0 0 22px rgba(255, 154, 31, 1)); }
+}
+
+.answer.is-correct > .shape { background: linear-gradient(180deg, #b8ffd9, var(--emerald-deep)); }
+.answer.is-correct > .shape::after { background: linear-gradient(180deg, #4dffa6, var(--emerald) 50%, #0a9c58); }
+.answer.is-correct { color: #022213; animation: correctFlash .22s steps(1, end) 7; filter: drop-shadow(0 0 18px rgba(24, 212, 123, 0.9)); }
+.answer.is-correct .ans-letter { color: #022213; }
+@keyframes correctFlash { 50% { opacity: .35; } }
+
+.answer.is-wrong > .shape { background: linear-gradient(180deg, #ff9aa6, var(--crimson-deep)); }
+.answer.is-wrong > .shape::after { background: linear-gradient(180deg, #ff4d63, var(--crimson) 50%, #a3122a); }
+.answer.is-wrong { color: #fff; filter: drop-shadow(0 0 14px rgba(227, 38, 63, 0.8)); animation: shake .45s ease-in-out 1; }
+.answer.is-wrong .ans-letter { color: #fff; }
+@keyframes shake { 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+
+.answer.is-removed { opacity: 0.18; filter: grayscale(1); }
+.answer.is-removed .ans-text, .answer.is-removed .ans-letter { visibility: hidden; }
+.answer.is-dim { opacity: .55; }
+
+.answers.enter .slot { animation: slotIn .45s cubic-bezier(.2, .8, .2, 1) both; }
+.answers.enter .slot:nth-child(2) { animation-delay: .08s; }
+.answers.enter .slot:nth-child(3) { animation-delay: .16s; }
+.answers.enter .slot:nth-child(4) { animation-delay: .24s; }
+.question-wrap.enter .question-card { animation: cardIn .5s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes slotIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes cardIn { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+
+.confirm-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px;
+  padding: 12px 16px; border-radius: var(--radius);
+  background: rgba(233, 196, 106, 0.1); border: 1px solid rgba(233, 196, 106, 0.45);
+}
+.confirm-bar p { font-weight: 600; }
+.confirm-bar p b { color: var(--gold); }
+.notice {
+  padding: 12px 16px; border-radius: var(--radius); text-align: center; font-weight: 600;
+  background: rgba(24, 212, 123, 0.12); border: 1px solid rgba(24, 212, 123, 0.5);
+}
+.shortcuts { text-align: center; color: var(--ink-faint); font-size: var(--step--1); }
+
+/* Escalera de premios */
+.ladder {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px);
+  padding: 16px 14px 14px;
+  background: linear-gradient(180deg, rgba(19, 42, 92, 0.75), rgba(5, 5, 26, 0.9));
+  border: 1px solid rgba(233, 196, 106, 0.35); border-radius: var(--radius);
+}
+.ladder-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+.ladder h2 { font-family: var(--font-display); font-size: var(--step-0); letter-spacing: 0.1em; color: var(--gold); }
+.ladder-close { display: none; }
+.rungs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.rung {
+  position: relative; display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+  padding: 5px 10px; border-radius: 5px;
+  font-family: var(--font-num); font-size: 0.92rem; color: var(--ink-dim); font-variant-numeric: tabular-nums;
+  transition: background .35s, color .35s, transform .35s;
+}
+.rung .r-num { color: var(--ink-faint); text-align: right; font-size: 0.8rem; }
+.rung .r-amt { text-align: right; }
+.rung .r-flag { font-family: var(--font-body); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+.rung.is-safe { color: var(--gold); box-shadow: inset 0 0 0 1px rgba(233, 196, 106, 0.4); background: rgba(233, 196, 106, 0.07); }
+.rung.is-top .r-amt { font-weight: 600; color: var(--gold-hi); }
+.rung.is-passed { color: var(--cyan); }
+.rung.is-passed .r-num::before { content: "♪ "; color: var(--cyan); }
+.rung.is-current {
+  background: linear-gradient(90deg, var(--amber), #ffc061); color: var(--ink-dark); font-weight: 600;
+  transform: scale(1.03); box-shadow: 0 0 16px rgba(255, 154, 31, 0.5);
+}
+.rung.is-current .r-num, .rung.is-current .r-flag { color: var(--ink-dark); }
+.rung.is-lost { background: rgba(227, 38, 63, 0.25); color: #ffb3bd; }
+.ladder-foot { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(233, 196, 106, 0.2); display: flex; flex-direction: column; gap: 4px; font-size: var(--step--1); color: var(--ink-dim); }
+.ladder-foot b { font-family: var(--font-num); color: var(--ink); font-variant-numeric: tabular-nums; }
+.ladder-scrim { display: none; }
+
+/* ---------- Pantalla final ---------- */
+.end-card {
+  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 22px; align-items: start;
+}
+.result { display: flex; flex-direction: column; gap: 14px; text-align: left; }
+.result .r-badge {
+  align-self: flex-start; padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+}
+.r-badge.victory { background: var(--gold); color: var(--ink-dark); }
+.r-badge.withdraw { background: rgba(63, 216, 255, 0.18); color: var(--cyan); border: 1px solid var(--cyan); }
+.r-badge.wrong, .r-badge.timeout { background: rgba(227, 38, 63, 0.18); color: #ff8a98; border: 1px solid var(--crimson); }
+.result h1 { font-family: var(--font-display); font-size: var(--step-3); line-height: 1.15; }
+.result .r-amount {
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 8vw, 4.6rem); line-height: 1; letter-spacing: 0.02em;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-deep));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+.result .r-sub { color: var(--ink-dim); }
+.result .r-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.result .r-facts div { padding: 10px 12px; border-radius: 6px; background: rgba(5, 5, 26, 0.5); min-width: 0; }
+.result .r-facts dt { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+.result .r-facts dd { margin: 2px 0 0; font-family: var(--font-num); font-size: var(--step-1); font-variant-numeric: tabular-nums; }
+.result .r-answer { padding: 12px 14px; border-radius: 8px; background: rgba(24, 212, 123, 0.1); border: 1px solid rgba(24, 212, 123, 0.4); font-size: 0.95rem; }
+.result .r-answer b { color: var(--emerald); }
+.result-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* ---------- Modales ---------- */
+.overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: grid; place-items: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: var(--overlay); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn .2s ease-out;
+  overflow-y: auto;
+}
+.overlay[hidden] { display: none !important; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  width: min(560px, 100%); max-height: calc(100vh - 32px); overflow-y: auto;
+  padding: 26px; border-radius: 14px;
+  background: linear-gradient(180deg, #142a57, #0a1636);
+  border: 1px solid rgba(63, 216, 255, 0.45);
+  box-shadow: 0 0 40px rgba(63, 216, 255, 0.18), 0 20px 60px rgba(0, 0, 0, 0.6);
+  display: flex; flex-direction: column; gap: 16px;
+  animation: popIn .3s cubic-bezier(.2, .9, .3, 1.2);
+}
+@keyframes popIn { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
+.modal h2 { font-family: var(--font-display); font-size: var(--step-2); color: var(--gold); line-height: 1.2; }
+.modal-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+
+.caller { display: flex; align-items: center; gap: 14px; }
+.avatar {
+  position: relative; width: 62px; height: 62px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, var(--gold-hi), var(--gold-deep));
+  color: var(--ink-dark); font-family: var(--font-display); font-weight: 800; font-size: 1.3rem;
+}
+.avatar.ringing::before, .avatar.ringing::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--gold);
+  animation: ring 1.2s ease-out infinite;
+}
+.avatar.ringing::after { animation-delay: .6s; }
+@keyframes ring { from { transform: scale(.9); opacity: .9; } to { transform: scale(1.45); opacity: 0; } }
+.caller-name { font-weight: 700; font-size: var(--step-1); }
+.caller-role { color: var(--ink-dim); font-size: var(--step--1); }
+.call-status { font-size: var(--step--1); color: var(--cyan); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.speech {
+  position: relative; min-height: 120px; padding: 16px 18px; border-radius: 10px;
+  background: rgba(5, 5, 26, 0.6); border: 1px solid rgba(233, 196, 106, 0.3);
+  font-size: 1.02rem; line-height: 1.6;
+}
+.speech .caret { display: inline-block; width: 2px; height: 1.1em; vertical-align: -0.15em; background: var(--gold); animation: blink .8s steps(1) infinite; margin-left: 2px; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.chart { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: end; height: 230px; padding: 10px 6px 0; border-bottom: 1px solid rgba(63, 216, 255, 0.4);
+  background: repeating-linear-gradient(0deg, rgba(63, 216, 255, 0.08) 0 1px, transparent 1px 25%);
+}
+.bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%; min-width: 0; }
+.bar-pct { font-family: var(--font-num); font-weight: 600; font-variant-numeric: tabular-nums; }
+.bar { width: 100%; max-width: 64px; height: 0%; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, #8ae9ff, var(--cyan) 30%, var(--cyan-dim)); box-shadow: 0 0 14px rgba(63, 216, 255, 0.45); transition: height 1.4s cubic-bezier(.2, .8, .2, 1); }
+.bar-col.is-top .bar { background: linear-gradient(180deg, var(--gold-hi), var(--gold) 35%, var(--gold-deep)); box-shadow: 0 0 16px rgba(233, 196, 106, 0.55); }
+.bar-col.is-off { opacity: .3; }
+.chart-labels { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; text-align: center; font-family: var(--font-display); font-weight: 800; color: var(--gold); }
+.chart-note { color: var(--ink-dim); font-size: var(--step--1); }
+
+.fb-head { display: flex; align-items: center; gap: 12px; }
+.fb-badge { padding: 4px 12px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.fb-badge.ok { background: var(--emerald); color: #022213; }
+.fb-badge.bad { background: var(--crimson); color: #fff; }
+.fb-answer { padding: 12px 14px; border-radius: 8px; background: rgba(24, 212, 123, 0.1); border: 1px solid rgba(24, 212, 123, 0.45); }
+.fb-answer b { color: var(--emerald); font-family: var(--font-display); margin-right: 6px; }
+.didyou { padding: 14px 16px; border-radius: 10px; background: rgba(233, 196, 106, 0.08); border-left: 3px solid var(--gold); display: flex; flex-direction: column; gap: 6px; }
+.didyou .eyebrow { color: var(--gold); }
+.fb-money { font-weight: 600; color: var(--ink); }
+.fb-money.safe { color: var(--gold); }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60;
+  padding: 10px 18px; border-radius: 999px; background: var(--night-2); border: 1px solid var(--cyan); font-weight: 600; font-size: var(--step--1);
+  max-width: calc(100% - 32px); text-align: center;
+  animation: fadeIn .2s ease-out;
+}
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+#fx { position: fixed; inset: 0; z-index: 40; pointer-events: none; width: 100%; height: 100%; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px) {
+  .game-layout { grid-template-columns: minmax(0, 1fr); }
+  .ladder-toggle { display: inline-flex; }
+  .ladder {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 45; width: min(310px, 86vw);
+    border-radius: 0; border-width: 0 0 0 1px; overflow-y: auto;
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    padding-right: calc(14px + env(safe-area-inset-right, 0px));
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(105%); transition: transform .3s ease;
+    background: linear-gradient(180deg, #142a57, var(--night-0));
+  }
+  .ladder.is-open { transform: none; }
+  .ladder-close { display: inline-flex; }
+  .ladder-scrim { position: fixed; inset: 0; z-index: 44; background: var(--overlay); border: 0; }
+  .ladder-scrim.is-open { display: block; }
+  .start-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .start-grid .panel:first-child { grid-column: 1 / -1; }
+  .end-card { grid-template-columns: minmax(0, 1fr); }
+}
+@media (min-width: 721px) and (max-width: 980px) and (min-height: 600px) {
+  .ladder-toggle { display: none; }
+  .ladder {
+    position: static; transform: none; width: auto; z-index: auto; overflow: visible;
+    border-radius: var(--radius); border-width: 1px; padding: 16px 14px 14px;
+    background: linear-gradient(180deg, rgba(19, 42, 92, 0.75), rgba(5, 5, 26, 0.9));
+  }
+  .ladder-close, .ladder-scrim, .ladder-scrim.is-open { display: none; }
+  .rungs { display: grid; grid-template-rows: repeat(5, auto); grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px 12px; }
+  .rung.is-current { transform: none; }
+  .ladder-foot { flex-direction: row; flex-wrap: wrap; gap: 6px 24px; }
+}
+@media (max-width: 720px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .hero-visual { display: none; }
+  .start-grid { grid-template-columns: minmax(0, 1fr); }
+  .answers { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .slot:nth-child(odd)::before, .slot:nth-child(even)::before { left: -100vw; right: -100vw; }
+  .hud { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "life life" "timer withdraw"; gap: 12px 14px; }
+  .lifelines { grid-area: life; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .timer { grid-area: timer; width: 64px; height: 64px; }
+  .timer .t-num { font-size: 1.25rem; }
+  .withdraw-wrap { grid-area: withdraw; justify-self: stretch; }
+  .withdraw-btn { width: 100%; }
+  .lifeline { width: 100%; height: 46px; border-radius: 999px; }
+  .play { gap: 14px; }
+  .question-card { padding: 22px 16px; min-height: 0; }
+  .answer { min-height: 56px; }
+  .result .r-facts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .modal { padding: 20px; }
+  .chart { height: 190px; gap: 8px; }
+  .chart-labels { gap: 8px; }
+  .shortcuts { display: none; }
+}
+@media (max-width: 520px) {
+  #btn-mute-label { display: none; }
+  #btn-mute { padding: 0 11px; }
+  .brand svg { width: 30px; height: 30px; }
+  .brand-name { font-size: 0.85rem; letter-spacing: 0.08em; }
+}
+@media (max-width: 380px) {
+  .lifelines { gap: 6px; }
+  .lifeline { height: 42px; }
+  .lifeline .ll-text { font-size: 0.75rem; }
+  .chip { padding: 3px 9px; font-size: 0.75rem; }
+  .answer { padding: 10px 16px 10px 12px; gap: 10px; }
+  .brand-name { font-size: 0.74rem; letter-spacing: 0.05em; }
+  .ladder-toggle svg { display: none; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .app { padding-block: 8px 16px; gap: 10px; }
+  .topbar .brand svg { width: 26px; height: 26px; }
+  .play { gap: 10px; }
+  .hud { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: none; gap: 10px; }
+  .lifelines { display: flex; grid-area: auto; }
+  .lifeline { width: 52px; height: 38px; }
+  .lifeline .ll-lock { display: none; }
+  .timer { grid-area: auto; width: 54px; height: 54px; }
+  .timer .t-num { font-size: 1.1rem; }
+  .withdraw-wrap { grid-area: auto; justify-self: end; }
+  .withdraw-btn { width: auto; min-height: 38px; }
+  .level-strip { gap: 6px; }
+  .chip { padding: 2px 9px; font-size: 0.72rem; }
+  .question-wrap { padding: 6px 0; }
+  .question-card { padding: 14px 20px; min-height: 0; }
+  .q-text { font-size: 1.02rem; }
+  .answers { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; }
+  .slot:nth-child(odd)::before { left: -100vw; right: -9px; }
+  .slot:nth-child(even)::before { left: -9px; right: -100vw; }
+  .answer { min-height: 46px; padding: 8px 16px 8px 12px; font-size: 0.95rem; }
+  .shortcuts { display: none; }
+  .modal { padding: 16px 20px; gap: 10px; max-height: calc(100vh - 20px); }
+  .chart { height: 140px; }
+  .speech { min-height: 0; }
+  .hero { padding-block: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  .stage-bg .beam { animation: none !important; }
+}
+</style>
+
+<div class="stage-bg" aria-hidden="true">
+  <div class="beam b1"></div>
+  <div class="beam b2"></div>
+  <div class="beam b3"></div>
+  <div class="floor"></div>
+</div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand" aria-label="Clave de Oro">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <defs>
+          <linearGradient id="g-gold" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff0bf"/><stop offset=".5" stop-color="#e9c46a"/><stop offset="1" stop-color="#9a7223"/>
+          </linearGradient>
+          <clipPath id="ring-clip"><circle cx="20" cy="20" r="14.5"/></clipPath>
+        </defs>
+        <circle cx="20" cy="20" r="17.5" fill="none" stroke="url(#g-gold)" stroke-width="2.5"/>
+        <g clip-path="url(#ring-clip)" stroke="#3fd8ff" stroke-opacity=".55" stroke-width="1">
+          <line x1="0" y1="13" x2="40" y2="13"/><line x1="0" y1="16.5" x2="40" y2="16.5"/><line x1="0" y1="20" x2="40" y2="20"/><line x1="0" y1="23.5" x2="40" y2="23.5"/><line x1="0" y1="27" x2="40" y2="27"/>
+        </g>
+        <ellipse cx="17" cy="25.2" rx="4" ry="3" transform="rotate(-22 17 25.2)" fill="url(#g-gold)"/>
+        <path d="M20.6 24.5 V10.5 C23 11.5 25.5 12.8 26 16" fill="none" stroke="url(#g-gold)" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name">Clave de Oro</span>
+    </div>
+    <div class="topbar-actions">
+      <button type="button" class="icon-btn ladder-toggle" id="btn-ladder" aria-controls="ladder" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v18M17 3v18M7 7h10M7 12h10M7 17h10"/></svg>
+        <span id="btn-ladder-label">Premios</span>
+      </button>
+      <button type="button" class="icon-btn" id="btn-mute" aria-pressed="false" aria-label="Silenciar sonido">
+        <svg class="sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16 8.5a5 5 0 0 1 0 7M18.8 6a8.5 8.5 0 0 1 0 12"/></svg>
+        <svg class="sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>
+        <span id="btn-mute-label">Sonido</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===================== INICIO ===================== -->
+    <section id="screen-start" class="screen" aria-labelledby="start-title">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Lenguaje musical · 15 preguntas · 4 comodines</p>
+          <h1 class="hero-title" id="start-title">Clave de Oro <small>El desafío del millón musical</small></h1>
+          <p class="hero-lead">Sube la escalera desde $100 hasta $1,000,000 respondiendo preguntas de notas, claves, ritmo, métrica, melodía, armaduras, tonalidad y armonía. Cada error te devuelve al último piso seguro.</p>
+          <form class="start-form" id="start-form" novalidate>
+            <div class="field">
+              <label for="player-name">Tu nombre para el ranking</label>
+              <input id="player-name" name="player-name" type="text" maxlength="18" autocomplete="nickname" placeholder="Por ejemplo, Valentina">
+            </div>
+            <button type="submit" class="btn btn-gold" id="btn-start">
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>
+              Comenzar partida
+            </button>
+          </form>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <ol class="mini-ladder" id="mini-ladder"></ol>
+        </div>
+      </div>
+
+      <div class="start-grid">
+        <section class="panel" aria-labelledby="rules-title">
+          <h2 id="rules-title">Cómo se juega</h2>
+          <ul class="rules">
+            <li><span class="r-ico">15</span><span><b>Tres bloques de dificultad.</b> Preguntas 1 a 5 básicas, 6 a 10 intermedias y 11 a 15 avanzadas, elegidas al azar en cada partida.</span></li>
+            <li><span class="r-ico">$</span><span><b>Pisos seguros en $1,000 y $32,000.</b> Si fallas, te llevas el último piso seguro que hayas superado.</span></li>
+            <li><span class="r-ico">s</span><span><b>Reloj de 30 s</b> en las preguntas 1 a 5 y <b>de 45 s</b> desde la 6. Si llega a cero, pierdes como si fallaras.</span></li>
+            <li><span class="r-ico">4</span><span><b>Comodines de un solo uso:</b> 50:50, Llamada al Maestro, Voto de la Orquesta y Cambio de Partitura (desde la pregunta 6).</span></li>
+            <li><span class="r-ico">↩</span><span><b>Retírate</b> antes de confirmar una respuesta y te llevas lo ganado hasta la pregunta anterior.</span></li>
+            <li><span class="r-ico">⌨</span><span>Atajos: <span class="kbd">A</span>–<span class="kbd">D</span> para elegir, <span class="kbd">Enter</span> para confirmar, <span class="kbd">Esc</span> para cerrar ventanas.</span></li>
+          </ul>
+        </section>
+        <section class="panel" aria-labelledby="board-title">
+          <h2 id="board-title">Ranking local</h2>
+          <ol class="board" id="board-start"></ol>
+        </section>
+        <section class="panel" aria-labelledby="stats-title">
+          <h2 id="stats-title">Tus estadísticas</h2>
+          <dl class="stats" id="stats"></dl>
+          <button type="button" class="link-btn" id="btn-reset">Borrar ranking y estadísticas</button>
+        </section>
+      </div>
+    </section>
+
+    <!-- ===================== JUEGO ===================== -->
+    <section id="screen-game" class="screen" aria-label="Partida en curso" hidden>
+      <div class="game-layout">
+        <div class="play">
+          <div class="hud">
+            <div class="lifelines" role="group" aria-label="Comodines">
+              <button type="button" class="lifeline" data-lifeline="fifty" title="50:50 · Elimina dos respuestas incorrectas" aria-label="Comodín 50:50">
+                <span class="ll-text">50:50</span>
+              </button>
+              <button type="button" class="lifeline" data-lifeline="phone" title="Llamada al Maestro de Música" aria-label="Comodín Llamada al Maestro de Música">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+              </button>
+              <button type="button" class="lifeline" data-lifeline="audience" title="Voto de la Orquesta" aria-label="Comodín Voto de la Orquesta">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="4" height="8" rx="1" fill="currentColor"/><rect x="10" y="4" width="4" height="17" rx="1" fill="currentColor"/><rect x="17" y="9" width="4" height="12" rx="1" fill="currentColor"/></svg>
+              </button>
+              <button type="button" class="lifeline" data-lifeline="switch" title="Cambio de Partitura · Disponible desde la pregunta 6" aria-label="Comodín Cambio de Partitura">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-4-4M20 16H6l4 4"/></svg>
+                <span class="ll-lock">Desde 6</span>
+              </button>
+            </div>
+            <div class="timer" id="timer" role="timer" aria-label="Tiempo restante">
+              <svg viewBox="0 0 64 64" aria-hidden="true">
+                <circle class="t-track" cx="32" cy="32" r="28"/>
+                <circle class="t-bar" id="timer-bar" cx="32" cy="32" r="28" stroke-dasharray="175.93" stroke-dashoffset="0"/>
+              </svg>
+              <span class="t-num" id="timer-num">30</span>
+            </div>
+            <div class="withdraw-wrap">
+              <button type="button" class="btn btn-ghost withdraw-btn" id="btn-withdraw">Retirarse con <span class="w-amt" id="withdraw-amt">$0</span></button>
+            </div>
+          </div>
+
+          <div class="level-strip" id="level-strip"></div>
+
+          <div class="question-wrap" id="question-wrap">
+            <div class="q-topic"><span id="q-topic">Tema</span></div>
+            <div class="question-card chamfer">
+              <span class="shape" aria-hidden="true"></span>
+              <p class="q-text" id="q-text" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <div class="answers" id="answers">
+            <div class="slot"><button type="button" class="answer chamfer" data-index="0"><span class="shape" aria-hidden="true"></span><span class="ans-letter">A</span><span class="ans-text"></span></button></div>
+            <div class="slot"><button type="button" class="answer chamfer" data-index="1"><span class="shape" aria-hidden="true"></span><span class="ans-letter">B</span><span class="ans-text"></span></button></div>
+            <div class="slot"><button type="button" class="answer chamfer" data-index="2"><span class="shape" aria-hidden="true"></span><span class="ans-letter">C</span><span class="ans-text"></span></button></div>
+            <div class="slot"><button type="button" class="answer chamfer" data-index="3"><span class="shape" aria-hidden="true"></span><span class="ans-letter">D</span><span class="ans-text"></span></button></div>
+          </div>
+
+          <div class="confirm-bar" id="confirm-bar" hidden>
+            <p id="confirm-text">¿Es tu respuesta definitiva?</p>
+            <button type="button" class="btn btn-gold" id="btn-final">Respuesta definitiva</button>
+            <button type="button" class="btn btn-ghost" id="btn-rethink">Cambiar</button>
+          </div>
+          <div class="notice" id="notice" role="status" hidden></div>
+          <p class="shortcuts">Pulsa <span class="kbd">A</span> <span class="kbd">B</span> <span class="kbd">C</span> <span class="kbd">D</span> para elegir y <span class="kbd">Enter</span> para confirmar.</p>
+        </div>
+
+        <aside class="ladder" id="ladder" aria-labelledby="ladder-title">
+          <div class="ladder-head">
+            <h2 id="ladder-title">Escalera de premios</h2>
+            <button type="button" class="icon-btn ladder-close" id="btn-ladder-close" aria-label="Cerrar escalera de premios">Cerrar</button>
+          </div>
+          <ol class="rungs" id="rungs"></ol>
+          <div class="ladder-foot">
+            <span>Asegurado: <b id="foot-safe">$0</b></span>
+            <span>Si te retiras: <b id="foot-bank">$0</b></span>
+          </div>
+        </aside>
+        <button type="button" class="ladder-scrim" id="ladder-scrim" aria-label="Cerrar escalera de premios" tabindex="-1"></button>
+      </div>
+    </section>
+
+    <!-- ===================== FINAL ===================== -->
+    <section id="screen-end" class="screen" aria-labelledby="end-title" hidden>
+      <div class="end-card">
+        <div class="panel result">
+          <span class="r-badge" id="end-badge">Fin</span>
+          <h1 id="end-title">Fin de la partida</h1>
+          <p class="r-sub" id="end-sub"></p>
+          <p class="r-amount" id="end-amount">$0</p>
+          <dl class="r-facts">
+            <div><dt>Aciertos</dt><dd id="end-correct">0/15</dd></div>
+            <div><dt>Comodines</dt><dd id="end-lifelines">0/4</dd></div>
+            <div><dt>Puesto</dt><dd id="end-rank">—</dd></div>
+          </dl>
+          <p class="r-answer" id="end-answer" hidden></p>
+          <div class="result-actions">
+            <button type="button" class="btn btn-gold" id="btn-again">Jugar otra vez</button>
+            <button type="button" class="btn btn-ghost" id="btn-home">Volver al inicio</button>
+          </div>
+        </div>
+        <section class="panel" aria-labelledby="board-end-title">
+          <h2 id="board-end-title">Ranking local</h2>
+          <ol class="board" id="board-end"></ol>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ===================== MODALES ===================== -->
+<div class="overlay" id="modal-phone" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="phone-title">
+    <h2 id="phone-title">Llamada al Maestro de Música</h2>
+    <div class="caller">
+      <div class="avatar ringing" id="phone-avatar" aria-hidden="true">AC</div>
+      <div>
+        <p class="caller-name">Maestro Andrés Corchea</p>
+        <p class="caller-role">Profesor de Educación Musical · 30 años en el aula</p>
+        <p class="call-status" id="phone-status">Llamando…</p>
+      </div>
+    </div>
+    <p class="speech" id="phone-speech" aria-live="polite"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="btn-phone-skip">Mostrar todo</button>
+      <button type="button" class="btn btn-gold" id="btn-phone-close">Colgar y volver</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-audience" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="aud-title">
+    <h2 id="aud-title">Voto de la Orquesta</h2>
+    <p class="chart-note" id="aud-note">Los músicos de la orquesta votan con sus atriles…</p>
+    <div>
+      <div class="chart" id="aud-chart"></div>
+      <div class="chart-labels" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-gold" id="btn-aud-close">Volver a la pregunta</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-feedback" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="fb-title">
+    <div class="fb-head"><span class="fb-badge" id="fb-badge">Correcto</span></div>
+    <h2 id="fb-title">¡Correcto!</h2>
+    <p class="fb-answer" id="fb-answer"></p>
+    <div class="didyou">
+      <span class="eyebrow">¿Sabías que…?</span>
+      <p id="fb-explain"></p>
+    </div>
+    <p class="fb-money" id="fb-money"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-gold" id="btn-fb-next">Siguiente pregunta</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-confirm" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cf-title">
+    <h2 id="cf-title">¿Seguro?</h2>
+    <p id="cf-body"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="btn-cf-cancel">Cancelar</button>
+      <button type="button" class="btn btn-gold" id="btn-cf-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="sr-only" id="sr-live" aria-live="assertive"></div>
+<noscript><p style="position:relative;z-index:2;padding:16px;color:#fff">Este juego necesita JavaScript activado.</p></noscript>
+
+<script>
+(() => {
+  'use strict';
+
+  /* =========================================================================
+     0. CONSTANTES Y UTILIDADES
+     ========================================================================= */
+  const PRIZES = [100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
+  const SAFE_LEVELS = [5, 10];
+  const TOTAL_LEVELS = 15;
+  const SWITCH_UNLOCK_LEVEL = 6;
+  const SUSPENSE_MS = 2000;
+  const LETTERS = ['A', 'B', 'C', 'D'];
+  const LIFELINE_NAMES = { fifty: '50:50', phone: 'Llamada al Maestro', audience: 'Voto de la Orquesta', switch: 'Cambio de Partitura' };
+
+  const TIER_CONFIG = {
+    1: { name: 'Básico', time: 30, phoneAccuracy: 0.95, phoneConfidence: [92, 97], audienceCorrect: [0.58, 0.80] },
+    2: { name: 'Intermedio', time: 45, phoneAccuracy: 0.90, phoneConfidence: [87, 92], audienceCorrect: [0.42, 0.60] },
+    3: { name: 'Avanzado', time: 45, phoneAccuracy: 0.85, phoneConfidence: [82, 88], audienceCorrect: [0.28, 0.46] }
+  };
+
+  const fmtMoney = (n) => '$' + Number(n).toLocaleString('en-US');
+  const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+  const randRange = (a, b) => a + Math.random() * (b - a);
+  const prefersReducedMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* =========================================================================
+     1. BANCO DE PREGUNTAS (currículo de Educación Musical)
+     answer = índice de la opción correcta antes de barajar.
+     ========================================================================= */
+  const QUESTION_BANK = [
+    /* ---------------- TIER 1 · BÁSICO (niveles 1-5): notas, claves, pulso, ritmo, métrica y melodía ---------------- */
+    {
+      id: 'l1-01', tier: 1, topic: 'Notas musicales',
+      q: '¿Cuántas notas musicales naturales hay?',
+      options: ['5', '7', '8', '12'], answer: 1,
+      explanation: 'Hay siete notas naturales: Do, Re, Mi, Fa, Sol, La y Si. Después de Si vuelve a empezar Do, una octava más aguda. Si se cuentan también las notas con sostenidos y bemoles, en una octava hay 12 sonidos distintos.',
+      hint: 'Recítalas en voz alta desde Do hasta Si y cuenta con los dedos. Los 12 sonidos aparecen solo si sumas las teclas negras del piano.'
+    },
+    {
+      id: 'l1-02', tier: 1, topic: 'Notas musicales',
+      q: 'En la escala ascendente, ¿qué nota viene justo después de Mi?',
+      options: ['Sol', 'Fa', 'Re', 'La'], answer: 1,
+      explanation: 'El orden ascendente es Do, Re, Mi, Fa, Sol, La, Si. Entre Mi y Fa hay solo un semitono: en el piano no hay ninguna tecla negra entre ellas.',
+      hint: 'Canta la escala despacio: Do, Re, Mi… La siguiente sílaba es la respuesta.'
+    },
+    {
+      id: 'l1-03', tier: 1, topic: 'Claves',
+      q: 'En clave de Sol, ¿qué nota se escribe en la segunda línea del pentagrama, contando desde abajo?',
+      options: ['Mi', 'Sol', 'Si', 'Re'], answer: 1,
+      explanation: 'La clave de Sol se dibuja empezando en la segunda línea y le da su nombre: toda nota escrita en esa línea es Sol. A partir de ella se deducen todas las demás.',
+      hint: 'La propia clave te da la respuesta: su espiral se enrosca justo alrededor de esa línea y le pone su nombre.'
+    },
+    {
+      id: 'l1-04', tier: 1, topic: 'Claves',
+      q: 'En clave de Sol, ¿qué nota está en la primera línea del pentagrama?',
+      options: ['Do', 'Mi', 'Fa', 'Re'], answer: 1,
+      explanation: 'Las cinco líneas en clave de Sol, de abajo arriba, son Mi, Sol, Si, Re y Fa. Los espacios son Fa, La, Do y Mi. El Do central se escribe en una línea adicional por debajo del pentagrama.',
+      hint: 'Si la segunda línea es Sol, baja un escalón: el espacio de abajo es Fa, y la línea que sigue es la nota anterior a Fa.'
+    },
+    {
+      id: 'l1-05', tier: 1, topic: 'Claves',
+      q: 'En clave de Sol, ¿qué nota se escribe en el tercer espacio del pentagrama?',
+      options: ['La', 'Do', 'Si', 'Mi'], answer: 1,
+      explanation: 'Los cuatro espacios en clave de Sol son, de abajo arriba, Fa, La, Do y Mi. El tercer espacio es Do, una octava por encima del Do central.',
+      hint: 'Los espacios van saltando de nota en nota: Fa, La… y el siguiente salto de tercera.'
+    },
+    {
+      id: 'l1-06', tier: 1, topic: 'Claves',
+      q: '¿Qué clave se usa normalmente para los sonidos graves, como la mano izquierda del piano?',
+      options: ['Clave de Sol', 'Clave de Fa en cuarta línea', 'Clave de Do en tercera línea', 'Clave de Do en primera línea'], answer: 1,
+      explanation: 'La clave de Fa en cuarta línea se usa para registros graves: la mano izquierda del piano, el violonchelo, el contrabajo, el fagot o la tuba. Sus dos puntos rodean la cuarta línea, que pasa a llamarse Fa.',
+      hint: 'Es la clave que parece una «C» al revés con dos puntitos, y la usan el contrabajo y la tuba.'
+    },
+    {
+      id: 'l1-07', tier: 1, topic: 'Ritmo',
+      q: '¿Cuántas negras caben en una redonda?',
+      options: ['2', '3', '4', '8'], answer: 2,
+      explanation: 'La redonda vale 4 tiempos y la negra 1. La cadena completa es: 1 redonda = 2 blancas = 4 negras = 8 corcheas = 16 semicorcheas. Cada figura vale la mitad que la anterior.',
+      hint: 'Cada figura vale la mitad de la anterior: la redonda se divide en dos blancas, y cada blanca se divide en dos negras.'
+    },
+    {
+      id: 'l1-08', tier: 1, topic: 'Ritmo',
+      q: '¿Qué figura musical dura la mitad que una negra?',
+      options: ['La blanca', 'La corchea', 'La semicorchea', 'La redonda'], answer: 1,
+      explanation: 'La corchea dura medio tiempo cuando la negra es la unidad. Se reconoce por su corchete, la «banderita» de la plica. Dos corcheas unidas por una barra ocupan lo mismo que una negra.',
+      hint: 'Busca la figura que tiene una sola banderita en la plica. Con dos banderitas ya sería la mitad de la mitad.'
+    },
+    {
+      id: 'l1-09', tier: 1, topic: 'Ritmo',
+      q: '¿Qué efecto tiene un puntillo escrito a la derecha de una figura?',
+      options: ['Duplica su duración', 'Le suma la mitad de su valor', 'Reduce su duración a la mitad', 'La convierte en silencio'], answer: 1,
+      explanation: 'El puntillo añade a la figura la mitad de su propio valor. Una blanca (2 tiempos) con puntillo dura 3 tiempos, y una negra (1 tiempo) con puntillo dura tiempo y medio.',
+      hint: 'Piensa en la blanca con puntillo del compás de 3/4: la blanca vale dos, y con el puntillo llena los tres tiempos del compás.'
+    },
+    {
+      id: 'l1-10', tier: 1, topic: 'Ritmo',
+      q: '¿Cómo se llama el latido regular y constante que sentimos en la música, como el tic-tac de un reloj?',
+      options: ['El ritmo', 'El pulso', 'La melodía', 'El timbre'], answer: 1,
+      explanation: 'El pulso es la unidad regular que marcamos con el pie o con palmas. El ritmo, en cambio, es la combinación de duraciones largas y cortas que se mueve sobre ese pulso.',
+      hint: 'Es lo que marcas con el pie sin pensar, siempre igual. El ritmo cambia sobre él; esto no cambia.'
+    },
+    {
+      id: 'l1-11', tier: 1, topic: 'Métrica',
+      q: '¿Cómo se llama la línea vertical que separa un compás de otro en el pentagrama?',
+      options: ['Doble barra final', 'Línea divisoria', 'Ligadura', 'Calderón'], answer: 1,
+      explanation: 'La línea divisoria (o barra de compás) separa los compases. La doble barra final indica el fin de la obra, la ligadura une dos notas del mismo sonido y el calderón prolonga una nota a gusto del intérprete.',
+      hint: 'Es la línea sencilla que divide la partitura en trocitos iguales. La doble, más gruesa, solo aparece al final.'
+    },
+    {
+      id: 'l1-12', tier: 1, topic: 'Métrica',
+      q: '¿Cuántos tiempos tiene cada compás de 3/4?',
+      options: ['2', '3', '4', '6'], answer: 1,
+      explanation: 'El número de arriba indica los tiempos del compás: el 3/4 tiene tres tiempos de negra. Es el compás del vals, que se cuenta «UN-dos-tres».',
+      hint: 'Mira el número de arriba de la fracción. Es el compás del vals: UN-dos-tres, UN-dos-tres.'
+    },
+    {
+      id: 'l1-13', tier: 1, topic: 'Métrica',
+      q: 'En un compás de 4/4, ¿cuál es el tiempo más fuerte?',
+      options: ['El primero', 'El segundo', 'El tercero', 'El cuarto'], answer: 0,
+      explanation: 'En 4/4 el primer tiempo es fuerte, el tercero semifuerte y el segundo y el cuarto débiles. El primer tiempo de cada compás es el que lleva el acento principal.',
+      hint: 'Cuando el director marca el compás, el gesto más enérgico hacia abajo coincide con el inicio de cada compás.'
+    },
+    {
+      id: 'l1-14', tier: 1, topic: 'Melodía',
+      q: '¿Qué es una melodía?',
+      options: ['Varios sonidos que suenan a la vez', 'Una sucesión ordenada de sonidos de distinta altura y duración', 'La velocidad a la que se interpreta una obra', 'El volumen con que suena la música'], answer: 1,
+      explanation: 'La melodía es una sucesión de sonidos, uno detrás de otro, con alturas y duraciones organizadas que tiene sentido musical: es lo que cantamos de una canción. Varios sonidos a la vez forman armonía; la velocidad es el tempo y el volumen, la dinámica.',
+      hint: 'Es la parte de una canción que puedes tararear tú solo, nota a nota. Lo que suena a la vez sería otra cosa.'
+    },
+    {
+      id: 'l1-15', tier: 1, topic: 'Notas musicales',
+      q: '¿Qué alteración sube una nota medio tono?',
+      options: ['El bemol', 'El sostenido', 'El becuadro', 'El calderón'], answer: 1,
+      explanation: 'El sostenido (#) sube la nota un semitono; el bemol (♭) la baja un semitono, y el becuadro anula cualquier alteración anterior. El calderón no es una alteración: prolonga la duración.',
+      hint: 'Su signo se parece al de «almohadilla» o «hashtag» y tiene un nombre que suena a «sostener arriba».'
+    },
+    {
+      id: 'l1-16', tier: 1, topic: 'Notas musicales',
+      q: '¿Para qué sirve el becuadro?',
+      options: ['Para subir la nota un tono entero', 'Para anular una alteración y volver a la nota natural', 'Para repetir el compás anterior', 'Para indicar silencio'], answer: 1,
+      explanation: 'El becuadro (♮) cancela un sostenido o un bemol anterior, de la armadura o accidental, y devuelve la nota a su sonido natural hasta el final del compás.',
+      hint: 'Su nombre lo dice: devuelve la nota a su estado «cuadrado», natural, sin subir ni bajar.'
+    },
+
+    /* ---------------- TIER 2 · INTERMEDIO (niveles 6-10): métrica, ritmo, armaduras, tonalidad, intervalos y acordes ---------------- */
+    {
+      id: 'l2-01', tier: 2, topic: 'Métrica',
+      q: '¿Cuál de estos compases es compuesto?',
+      options: ['2/4', '3/4', '4/4', '6/8'], answer: 3,
+      explanation: 'En los compases compuestos cada pulso se divide en tres partes. El 6/8 tiene dos pulsos de negra con puntillo, y cada uno se divide en tres corcheas. En los compases simples (2/4, 3/4, 4/4) cada pulso se divide en dos.',
+      hint: 'Un compás compuesto reparte cada pulso en tres. Busca el que tiene seis corcheas pero se siente en dos tiempos.'
+    },
+    {
+      id: 'l2-02', tier: 2, topic: 'Métrica',
+      q: 'En el compás de 3/4, ¿qué indica el número 4 de abajo?',
+      options: ['Que hay cuatro tiempos por compás', 'Que la negra es la unidad de tiempo', 'Que se tocan cuatro notas por segundo', 'Que es un compás compuesto'], answer: 1,
+      explanation: 'En los compases simples, el número de arriba indica cuántos tiempos tiene el compás y el de abajo qué figura vale un tiempo: 1 es la redonda, 2 la blanca, 4 la negra y 8 la corchea.',
+      hint: 'El número de abajo es un código de figura: la redonda es 1, la blanca es 2… ¿qué figura corresponde al 4?'
+    },
+    {
+      id: 'l2-03', tier: 2, topic: 'Ritmo',
+      q: '¿Cómo se llama el efecto rítmico en el que un sonido empieza en un tiempo débil y se prolonga sobre el tiempo fuerte siguiente?',
+      options: ['Anacrusa', 'Síncopa', 'Contratiempo', 'Calderón'], answer: 1,
+      explanation: 'La síncopa desplaza el acento: la nota nace en una parte débil y se alarga sobre la fuerte, que queda sin articular. En el contratiempo, en cambio, la nota en parte débil va precedida de un silencio en la fuerte y no se prolonga.',
+      hint: 'Es el recurso que da «swing» a la cumbia o al jazz: el acento cae donde no lo esperas porque la nota se alarga por encima del tiempo fuerte.'
+    },
+    {
+      id: 'l2-04', tier: 2, topic: 'Métrica',
+      q: 'Si una melodía empieza con una o varias notas antes del primer tiempo fuerte del primer compás completo, ese comienzo se llama…',
+      options: ['Anacrusa', 'Síncopa', 'Coda', 'Cadencia'], answer: 0,
+      explanation: 'La anacrusa es el comienzo en tiempo débil, antes del primer tiempo fuerte. El «Cumpleaños feliz» empieza en anacrusa: «Cum-ple» va antes del acento de «a-ÑOS».',
+      hint: 'Piensa en el «Cumpleaños feliz»: las primeras sílabas suenan antes del primer acento fuerte.'
+    },
+    {
+      id: 'l2-05', tier: 2, topic: 'Ritmo',
+      q: '¿Qué es un tresillo?',
+      options: ['Un compás de tres tiempos', 'Tres figuras iguales que ocupan el tiempo de dos de su misma clase', 'Una nota que se repite tres veces seguidas', 'Un acorde de tres notas'], answer: 1,
+      explanation: 'El tresillo es un grupo de valoración especial: tres figuras que ocupan lo que normalmente ocupan dos de la misma figura. Por ejemplo, tres corcheas en tresillo duran lo mismo que una negra. Se marca con un 3 sobre el grupo.',
+      hint: 'Se reconoce por un pequeño 3 sobre las notas: mete tres donde normalmente caben dos.'
+    },
+    {
+      id: 'l2-06', tier: 2, topic: 'Armaduras',
+      q: '¿Qué alteración lleva la armadura de Sol mayor?',
+      options: ['Fa sostenido', 'Si bemol', 'Do sostenido', 'Ninguna'], answer: 0,
+      explanation: 'Sol mayor lleva un sostenido: Fa#. Ese Fa# es la sensible, el séptimo grado, que está a medio tono de la tónica Sol y la «empuja» a resolver.',
+      hint: 'La escala mayor necesita un semitono entre el séptimo grado y la tónica. ¿Qué nota hay justo debajo de Sol y qué le falta para quedar a medio tono?'
+    },
+    {
+      id: 'l2-07', tier: 2, topic: 'Armaduras',
+      q: '¿Qué alteración lleva la armadura de Fa mayor?',
+      options: ['Fa sostenido', 'Si bemol', 'Mi bemol', 'Do sostenido'], answer: 1,
+      explanation: 'Fa mayor lleva un bemol: Si♭. Sin él, entre La y Si habría un tono, y la escala mayor necesita un semitono entre su tercer y cuarto grado (La–Si♭).',
+      hint: 'Es la primera tonalidad con bemoles. Y el orden de los bemoles empieza por la nota que está justo encima de La.'
+    },
+    {
+      id: 'l2-08', tier: 2, topic: 'Armaduras',
+      q: '¿Cuál es el orden en que aparecen los sostenidos en la armadura?',
+      options: ['Fa – Do – Sol – Re – La – Mi – Si', 'Si – Mi – La – Re – Sol – Do – Fa', 'Do – Re – Mi – Fa – Sol – La – Si', 'Fa – Sol – La – Si – Do – Re – Mi'], answer: 0,
+      explanation: 'Los sostenidos aparecen por quintas ascendentes: Fa, Do, Sol, Re, La, Mi, Si. Los bemoles siguen el orden inverso: Si, Mi, La, Re, Sol, Do, Fa.',
+      hint: 'Se avanza por quintas desde Fa. La opción al revés es la de los bemoles, no la de los sostenidos.'
+    },
+    {
+      id: 'l2-09', tier: 2, topic: 'Notas musicales',
+      q: '¿Entre qué notas naturales hay solo un semitono?',
+      options: ['Do–Re y Fa–Sol', 'Mi–Fa y Si–Do', 'La–Si y Re–Mi', 'Sol–La y Do–Re'], answer: 1,
+      explanation: 'Entre las notas naturales solo hay dos semitonos: Mi–Fa y Si–Do. En el piano son las dos parejas de teclas blancas sin tecla negra entre ellas. Entre todas las demás hay un tono.',
+      hint: 'Mira un teclado: busca las teclas blancas vecinas que no tienen ninguna tecla negra en medio.'
+    },
+    {
+      id: 'l2-10', tier: 2, topic: 'Tonalidad',
+      q: '¿Qué estructura de tonos (T) y semitonos (S) tiene la escala mayor?',
+      options: ['T – T – S – T – T – T – S', 'T – S – T – T – S – T – T', 'S – T – T – T – S – T – T', 'T – T – T – S – T – T – S'], answer: 0,
+      explanation: 'La escala mayor sigue el patrón tono, tono, semitono, tono, tono, tono, semitono. Do mayor lo cumple con solo teclas blancas; cualquier otra escala mayor necesita alteraciones para reproducirlo, y de ahí nacen las armaduras.',
+      hint: 'Usa Do mayor, sin alteraciones: los semitonos caen entre Mi–Fa y Si–Do, es decir, entre los grados 3-4 y 7-8.'
+    },
+    {
+      id: 'l2-11', tier: 2, topic: 'Claves',
+      q: 'En clave de Fa en cuarta línea, ¿qué nota está en la primera línea del pentagrama?',
+      options: ['Sol', 'Mi', 'La', 'Fa'], answer: 0,
+      explanation: 'En clave de Fa las líneas son, de abajo arriba, Sol, Si, Re, Fa y La, y los espacios La, Do, Mi y Sol. La cuarta línea es Fa porque ahí se colocan los dos puntos de la clave.',
+      hint: 'La cuarta línea es Fa. Baja de línea en línea saltando una nota cada vez: Fa, Re, Si… y la siguiente.'
+    },
+    {
+      id: 'l2-12', tier: 2, topic: 'Intervalos',
+      q: '¿Qué intervalo se forma entre Do y el Mi que está por encima?',
+      options: ['Tercera menor', 'Tercera mayor', 'Cuarta justa', 'Segunda mayor'], answer: 1,
+      explanation: 'De Do a Mi hay tres notas (Do, Re, Mi), así que es una tercera, y contiene dos tonos: tercera mayor. La tercera menor tiene un tono y medio, como Re–Fa.',
+      hint: 'Cuenta los nombres de nota incluyendo los extremos para el número. Luego cuenta los tonos: Do–Re es un tono y Re–Mi otro.'
+    },
+    {
+      id: 'l2-13', tier: 2, topic: 'Melodía',
+      q: 'Cuando una melodía avanza por notas vecinas, sin saltos (Do-Re-Mi-Fa), se dice que su movimiento es…',
+      options: ['Conjunto', 'Disjunto', 'Paralelo', 'Contrario'], answer: 0,
+      explanation: 'El movimiento conjunto avanza por grados vecinos (segundas). El disjunto avanza por saltos de tercera o más. Paralelo y contrario describen cómo se mueven dos voces entre sí, no una melodía sola.',
+      hint: 'Las notas van «juntas», pegadas una a otra, como subir una escalera peldaño a peldaño.'
+    },
+    {
+      id: 'l2-14', tier: 2, topic: 'Armonía',
+      q: '¿Qué es un acorde?',
+      options: ['Una nota larga sostenida', 'Tres o más sonidos diferentes que suenan a la vez', 'Una melodía que se repite', 'El conjunto de alteraciones de la armadura'], answer: 1,
+      explanation: 'Un acorde es la combinación de tres o más sonidos distintos que suenan simultáneamente. El más básico es la tríada, formada por fundamental, tercera y quinta, como Do–Mi–Sol.',
+      hint: 'La melodía va nota a nota; la armonía junta notas en vertical. Piensa en lo que hace la guitarra cuando rasguea.'
+    },
+    {
+      id: 'l2-15', tier: 2, topic: 'Tonalidad',
+      q: '¿Cómo se llama el primer grado de una escala, el que da nombre a la tonalidad?',
+      options: ['Tónica', 'Dominante', 'Subdominante', 'Sensible'], answer: 0,
+      explanation: 'El primer grado es la tónica, el centro de reposo de la tonalidad. El cuarto grado es la subdominante, el quinto la dominante y el séptimo, a medio tono de la tónica, la sensible.',
+      hint: 'Es la nota de reposo, donde la canción suena terminada. Su nombre viene de «tono», el centro de todo.'
+    },
+    {
+      id: 'l2-16', tier: 2, topic: 'Tonalidad',
+      q: 'En Do mayor, ¿qué nota es la dominante, es decir, el quinto grado?',
+      options: ['Fa', 'Sol', 'La', 'Si'], answer: 1,
+      explanation: 'Contando desde Do: Do (I), Re (II), Mi (III), Fa (IV), Sol (V). La dominante es Sol. Después de la tónica, es el grado más importante de la tonalidad, y su acorde tiende a resolver en el de tónica.',
+      hint: 'Cuenta cinco notas hacia arriba desde Do, incluyendo el propio Do.'
+    },
+    {
+      id: 'l2-17', tier: 2, topic: 'Notas musicales',
+      q: 'Do sostenido y Re bemol suenan igual en el piano, pero se escriben distinto. ¿Cómo se llaman estas notas?',
+      options: ['Enarmónicas', 'Cromáticas', 'Diatónicas', 'Relativas'], answer: 0,
+      explanation: 'Dos notas son enarmónicas cuando tienen el mismo sonido (en afinación temperada) pero distinto nombre, como Do# y Re♭ o Mi# y Fa. Se escribe una u otra según la tonalidad y la función de la nota.',
+      hint: 'Mismo sonido, distinto nombre. La palabra viene del griego y tiene que ver con «armonía».'
+    },
+
+    /* ---------------- TIER 3 · AVANZADO (niveles 11-15): armaduras, tonalidades, intervalos, armonía y métrica avanzada ---------------- */
+    {
+      id: 'l3-01', tier: 3, topic: 'Armaduras',
+      q: '¿Cuántos sostenidos tiene la armadura de Re mayor?',
+      options: ['1', '2', '3', '4'], answer: 1,
+      explanation: 'Re mayor lleva dos sostenidos: Fa# y Do#. Siguiendo el orden de los sostenidos (Fa, Do, Sol, Re, La, Mi, Si), cada tonalidad añade uno: Sol mayor tiene 1, Re mayor 2 y La mayor 3.',
+      hint: 'Avanza por quintas desde Do, que no tiene alteraciones: Sol mayor tiene uno, y la siguiente quinta añade otro más.'
+    },
+    {
+      id: 'l3-02', tier: 3, topic: 'Armaduras',
+      q: '¿Qué tonalidad mayor lleva tres bemoles en su armadura (Si♭, Mi♭ y La♭)?',
+      options: ['La bemol mayor', 'Mi bemol mayor', 'Si bemol mayor', 'Re bemol mayor'], answer: 1,
+      explanation: 'Con bemoles, la tónica mayor es el penúltimo bemol de la armadura: con Si♭, Mi♭ y La♭, el penúltimo es Mi♭, así que es Mi bemol mayor. Si bemol mayor tiene 2 bemoles, La bemol mayor 4 y Re bemol mayor 5.',
+      hint: 'Usa el truco de clase: con bemoles, la tonalidad mayor coincide con el penúltimo bemol.'
+    },
+    {
+      id: 'l3-03', tier: 3, topic: 'Tonalidad',
+      q: '¿Cuál es la tonalidad relativa menor de Sol mayor?',
+      options: ['Mi menor', 'Sol menor', 'Re menor', 'Si menor'], answer: 0,
+      explanation: 'La relativa menor está una tercera menor por debajo de la tónica mayor, en su sexto grado, y comparte armadura. Sol mayor y Mi menor llevan los dos un Fa#. Sol menor es la homónima, no la relativa.',
+      hint: 'Baja una tercera menor desde Sol, o busca el sexto grado de su escala. Tiene que compartir el mismo Fa#.'
+    },
+    {
+      id: 'l3-04', tier: 3, topic: 'Tonalidad',
+      q: 'En el círculo de quintas, avanzando en el sentido de las agujas del reloj desde Do mayor, ¿qué tonalidad sigue a Sol mayor?',
+      options: ['Fa mayor', 'Re mayor', 'La mayor', 'Si bemol mayor'], answer: 1,
+      explanation: 'En sentido horario, cada tonalidad está una quinta justa por encima de la anterior y suma un sostenido: Do, Sol, Re, La, Mi, Si… En sentido contrario se avanza por cuartas y se suman bemoles: Fa, Si bemol, Mi bemol…',
+      hint: 'Cuenta cinco notas hacia arriba desde Sol: Sol, La, Si, Do… y la siguiente.'
+    },
+    {
+      id: 'l3-05', tier: 3, topic: 'Armonía',
+      q: '¿Qué notas forman la tríada de Fa mayor?',
+      options: ['Fa – La bemol – Do', 'Fa – La – Do', 'Fa – Si bemol – Do', 'Fa – La – Do sostenido'], answer: 1,
+      explanation: 'Una tríada mayor se forma con una tercera mayor (2 tonos) y una quinta justa sobre la fundamental. De Fa a La hay 2 tonos y de Fa a Do, una quinta justa. Con La bemol sería Fa menor y con Do sostenido, Fa aumentado.',
+      hint: 'La tríada mayor apila tercera mayor y quinta justa. De Fa a La natural ya hay dos tonos, así que no hace falta alterar nada.'
+    },
+    {
+      id: 'l3-06', tier: 3, topic: 'Armonía',
+      q: '¿Qué tipo de tríada se forma sobre el séptimo grado de Do mayor (Si – Re – Fa)?',
+      options: ['Mayor', 'Menor', 'Disminuida', 'Aumentada'], answer: 2,
+      explanation: 'Si–Re es una tercera menor y Si–Fa una quinta disminuida (tres tonos): eso es una tríada disminuida. En la escala mayor, los acordes son mayores en I, IV y V, menores en II, III y VI, y disminuido en VII.',
+      hint: 'Mide la quinta Si–Fa: no tiene tres tonos y medio como una quinta justa, sino solo tres.'
+    },
+    {
+      id: 'l3-07', tier: 3, topic: 'Armonía',
+      q: '¿Qué notas forman el acorde de séptima de dominante construido sobre Sol?',
+      options: ['Sol – Si – Re – Fa sostenido', 'Sol – Si – Re – Fa', 'Sol – Si bemol – Re – Fa', 'Sol – Si – Re sostenido – Fa'], answer: 1,
+      explanation: 'La séptima de dominante es una tríada mayor con una séptima menor añadida. Sol–Si–Re–Fa es el acorde V7 de Do mayor, y su tensión, sobre todo el tritono entre Si y Fa, pide resolver en el acorde de Do.',
+      hint: 'Es el acorde que aparece de forma natural sobre el quinto grado de Do mayor, sin ninguna alteración: tríada mayor más séptima menor.'
+    },
+    {
+      id: 'l3-08', tier: 3, topic: 'Armonía',
+      q: '¿Qué cadencia va del acorde de dominante (V) al de tónica (I) y da una sensación de final conclusivo?',
+      options: ['Cadencia plagal', 'Cadencia perfecta', 'Cadencia rota', 'Semicadencia'], answer: 1,
+      explanation: 'La cadencia perfecta o auténtica (V–I) es la más conclusiva. La plagal va de IV a I (el «Amén» de los himnos), la rota va de V a VI y la semicadencia termina en V, dejando la frase en suspenso.',
+      hint: 'Es la que cierra casi todas las obras clásicas: la dominante resuelve directamente en la tónica.'
+    },
+    {
+      id: 'l3-09', tier: 3, topic: 'Armonía',
+      q: 'Si tras el acorde de dominante (V) la música va al sexto grado (VI) en lugar de a la tónica, se produce una cadencia…',
+      options: ['Perfecta', 'Plagal', 'Rota o de engaño', 'Semicadencia'], answer: 2,
+      explanation: 'La cadencia rota o de engaño sorprende al oído: espera el acorde de tónica tras la dominante y recibe el del sexto grado (en Do mayor, La menor). Se usa para alargar una frase antes del final verdadero.',
+      hint: 'El oído espera un final y la música le hace una trampa. El nombre de la cadencia describe justamente esa trampa.'
+    },
+    {
+      id: 'l3-10', tier: 3, topic: 'Tonalidad',
+      q: '¿Qué diferencia a la escala menor armónica de la menor natural?',
+      options: ['Tiene elevados el sexto y el séptimo grado al subir', 'Tiene elevado el séptimo grado', 'Tiene elevado el tercer grado', 'Tiene rebajado el segundo grado'], answer: 1,
+      explanation: 'La menor armónica eleva medio tono el séptimo grado para crear una sensible que conduce a la tónica. En La menor armónica aparece Sol sostenido, y entre Fa y Sol sostenido se forma una segunda aumentada, su sonido característico.',
+      hint: 'Se llama armónica porque esa alteración hace posible un acorde de dominante mayor. Es una sola nota: la que está justo debajo de la tónica.'
+    },
+    {
+      id: 'l3-11', tier: 3, topic: 'Melodía',
+      q: 'En su forma tradicional, ¿cómo se comporta la escala menor melódica?',
+      options: ['Eleva el sexto y el séptimo grado al subir y los restituye al bajar', 'Eleva solo el séptimo grado al subir y al bajar', 'Rebaja el tercer grado solo al bajar', 'Es igual a la escala mayor en ambas direcciones'], answer: 0,
+      explanation: 'La menor melódica eleva el sexto y el séptimo grado al subir para evitar la segunda aumentada y suavizar la melodía. Al bajar vuelve a la forma natural. En La menor sube con Fa# y Sol#, y baja con Sol y Fa naturales.',
+      hint: 'Esta escala quiere que la melodía fluya sin el salto extraño de la armónica, así que corrige dos notas al subir. Y al bajar se relaja.'
+    },
+    {
+      id: 'l3-12', tier: 3, topic: 'Intervalos',
+      q: 'Al invertir una tercera mayor (Do–Mi pasa a ser Mi–Do), ¿qué intervalo se obtiene?',
+      options: ['Sexta mayor', 'Sexta menor', 'Quinta justa', 'Cuarta aumentada'], answer: 1,
+      explanation: 'Al invertir un intervalo, los números suman 9 (3 + 6) y la especie cambia: mayor pasa a menor, menor a mayor, aumentado a disminuido y justo sigue justo. Por eso la tercera mayor invertida es una sexta menor.',
+      hint: 'Dos reglas: el intervalo y su inversión suman 9, y lo mayor se vuelve menor.'
+    },
+    {
+      id: 'l3-13', tier: 3, topic: 'Intervalos',
+      q: '¿Qué intervalo se forma entre Fa y el Si que está por encima?',
+      options: ['Cuarta justa', 'Cuarta aumentada', 'Quinta disminuida', 'Quinta justa'], answer: 1,
+      explanation: 'De Fa a Si hay cuatro notas (Fa, Sol, La, Si), así que es una cuarta, y tiene tres tonos en lugar de dos y medio: cuarta aumentada, también llamada tritono. La quinta disminuida suena igual, pero se escribe con cinco nombres de nota, por ejemplo Si–Fa.',
+      hint: 'El número lo da el recuento de nombres de nota, no el sonido. Cuenta desde Fa hasta Si y luego mide los tonos: hay uno más de lo normal.'
+    },
+    {
+      id: 'l3-14', tier: 3, topic: 'Claves',
+      q: '¿Qué instrumento lee habitualmente en clave de Do en tercera línea?',
+      options: ['El violín', 'La viola', 'El violonchelo', 'La flauta'], answer: 1,
+      explanation: 'La viola lee en clave de Do en tercera línea, que sitúa el Do central en el centro del pentagrama y se ajusta a su registro medio. El violín y la flauta leen en clave de Sol, y el violonchelo en clave de Fa, con pasajes agudos en Do en cuarta.',
+      hint: 'Es el instrumento de cuerda de registro medio, entre el violín y el violonchelo, y su clave pone el Do central justo en medio.'
+    },
+    {
+      id: 'l3-15', tier: 3, topic: 'Métrica',
+      q: '¿Cómo se llama un compás como el 5/8, que se forma uniendo compases distintos (por ejemplo, 2/8 + 3/8)?',
+      options: ['Compás compuesto', 'Compás de amalgama', 'Compás simple', 'Compás binario'], answer: 1,
+      explanation: 'El compás de amalgama combina dos o más compases diferentes, por lo que sus pulsos tienen duraciones desiguales: 5/8 = 2 + 3 o 3 + 2. Aparece en músicas tradicionales de los Balcanes y en piezas como «Take Five».',
+      hint: 'Sus pulsos no son iguales: unos de dos corcheas y otros de tres, pegados en una sola unidad.'
+    },
+    {
+      id: 'l3-16', tier: 3, topic: 'Tonalidad',
+      q: '¿Cómo se llama el paso de una tonalidad a otra dentro de una misma obra?',
+      options: ['Transporte', 'Modulación', 'Inversión', 'Progresión'], answer: 1,
+      explanation: 'La modulación es el cambio de centro tonal dentro de una obra, normalmente a tonalidades vecinas como la dominante o la relativa. El transporte, en cambio, traslada una obra entera a otra tonalidad sin cambiar sus relaciones internas.',
+      hint: 'La obra empieza en un tono y en mitad de ella cambia de centro. Trasladar la obra entera tiene otro nombre.'
+    }
+  ];
+
+  /* =========================================================================
+     2. StorageService · persistencia en localStorage
+     ========================================================================= */
+  class StorageService {
+    constructor(namespace = 'clave-de-oro:v1:') {
+      this.ns = namespace;
+      this.memory = {};
+    }
+    _read(key, fallback) {
+      try {
+        const raw = window.localStorage.getItem(this.ns + key);
+        if (raw === null) return key in this.memory ? this.memory[key] : fallback;
+        return JSON.parse(raw);
+      } catch (e) {
+        return key in this.memory ? this.memory[key] : fallback;
+      }
+    }
+    _write(key, value) {
+      this.memory[key] = value;
+      try {
+        window.localStorage.setItem(this.ns + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    getLeaderboard() {
+      const list = this._read('leaderboard', []);
+      return Array.isArray(list) ? list : [];
+    }
+    addScore(entry) {
+      const list = this.getLeaderboard().concat([entry]);
+      list.sort((a, b) => (b.amount - a.amount) || (b.correct - a.correct) || (a.date - b.date));
+      const top = list.slice(0, 10);
+      this._write('leaderboard', top);
+      const rank = top.findIndex((e) => e.id === entry.id);
+      return { list: top, rank: rank === -1 ? null : rank + 1 };
+    }
+    defaultStats() {
+      return { games: 0, wins: 0, bestAmount: 0, totalWinnings: 0, totalCorrect: 0, totalAnswered: 0, lifelines: { fifty: 0, phone: 0, audience: 0, switch: 0 } };
+    }
+    getStats() {
+      const s = this._read('stats', null);
+      const base = this.defaultStats();
+      if (!s || typeof s !== 'object') return base;
+      return Object.assign(base, s, { lifelines: Object.assign(base.lifelines, s.lifelines || {}) });
+    }
+    recordGame({ amount, correct, answered, won, lifelinesUsed }) {
+      const s = this.getStats();
+      s.games += 1;
+      if (won) s.wins += 1;
+      s.bestAmount = Math.max(s.bestAmount, amount);
+      s.totalWinnings += amount;
+      s.totalCorrect += correct;
+      s.totalAnswered += answered;
+      lifelinesUsed.forEach((name) => { s.lifelines[name] = (s.lifelines[name] || 0) + 1; });
+      this._write('stats', s);
+      return s;
+    }
+    getRecentQuestionIds() {
+      const ids = this._read('recent', []);
+      return Array.isArray(ids) ? ids : [];
+    }
+    pushRecentQuestionIds(ids) {
+      const merged = this.getRecentQuestionIds().filter((id) => !ids.includes(id)).concat(ids);
+      this._write('recent', merged.slice(-30));
+    }
+    getPrefs() {
+      return Object.assign({ muted: false, playerName: '' }, this._read('prefs', {}));
+    }
+    setPrefs(patch) {
+      this._write('prefs', Object.assign(this.getPrefs(), patch));
+    }
+    clearScores() {
+      this.memory = { prefs: this.getPrefs() };
+      ['leaderboard', 'stats', 'recent'].forEach((k) => {
+        try { window.localStorage.removeItem(this.ns + k); } catch (e) { /* almacenamiento no disponible */ }
+      });
+    }
+  }
+
+  /* =========================================================================
+     3. QuestionRepository · banco en memoria con selección aleatoria por nivel
+     ========================================================================= */
+  class QuestionRepository {
+    constructor(bank, storage) {
+      this.bank = bank;
+      this.storage = storage;
+    }
+    static shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    static tierForLevel(level) {
+      if (level <= 5) return 1;
+      if (level <= 10) return 2;
+      return 3;
+    }
+    byTier(tier) {
+      return this.bank.filter((q) => q.tier === tier);
+    }
+    /** Devuelve todas las preguntas del bloque: primero las no vistas recientemente (barajadas), luego las vistas (de la más antigua a la más reciente). */
+    orderedPool(tier) {
+      const recent = this.storage.getRecentQuestionIds();
+      const pool = this.byTier(tier);
+      const fresh = QuestionRepository.shuffle(pool.filter((q) => !recent.includes(q.id)));
+      const seen = pool.filter((q) => recent.includes(q.id)).sort((a, b) => recent.indexOf(a.id) - recent.indexOf(b.id));
+      return fresh.concat(seen);
+    }
+    /** Baraja las opciones para que la letra correcta cambie en cada partida. */
+    prepare(q) {
+      const order = QuestionRepository.shuffle([0, 1, 2, 3]);
+      return {
+        id: q.id,
+        tier: q.tier,
+        topic: q.topic,
+        text: q.q,
+        options: order.map((i) => q.options[i]),
+        correct: order.indexOf(q.answer),
+        explanation: q.explanation,
+        hint: q.hint
+      };
+    }
+    buildGameSet() {
+      const questions = [];
+      const spares = {};
+      [1, 2, 3].forEach((tier) => {
+        const pool = this.orderedPool(tier);
+        questions.push(...pool.slice(0, 5).map((q) => this.prepare(q)));
+        spares[tier] = pool.slice(5).map((q) => this.prepare(q));
+      });
+      this.storage.pushRecentQuestionIds(questions.map((q) => q.id));
+      return { questions, spares };
+    }
+  }
+
+  /* =========================================================================
+     4. AudioEngine · síntesis por Web Audio API, sin archivos externos
+     ========================================================================= */
+  class AudioEngine {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+      this.volume = 0.6;
+      this.tension = null;
+      this.heartbeatTimer = null;
+      this.urgent = false;
+    }
+    static mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+
+    init() {
+      if (this.ctx) {
+        if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+        return true;
+      }
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      try { this.ctx = new AC(); } catch (e) { this.ctx = null; return false; }
+      const c = this.ctx;
+      this.master = c.createGain();
+      this.master.gain.value = this.muted ? 0 : this.volume;
+      const comp = c.createDynamicsCompressor();
+      comp.threshold.value = -16;
+      comp.ratio.value = 4;
+      this.master.connect(comp);
+      comp.connect(c.destination);
+
+      this.bus = c.createGain();
+      this.bus.connect(this.master);
+      this.verb = c.createConvolver();
+      this.verb.buffer = this._impulse(2.4, 2.8);
+      const wet = c.createGain();
+      wet.gain.value = 0.3;
+      this.bus.connect(this.verb);
+      this.verb.connect(wet);
+      wet.connect(this.master);
+
+      this.noiseBuffer = this._noiseBuffer(2);
+      return true;
+    }
+    get ready() { return !!this.ctx; }
+    setMuted(m) {
+      this.muted = m;
+      if (this.master) this.master.gain.setTargetAtTime(m ? 0 : this.volume, this.ctx.currentTime, 0.05);
+    }
+    _impulse(seconds, decay) {
+      const c = this.ctx;
+      const len = Math.floor(c.sampleRate * seconds);
+      const buf = c.createBuffer(2, len, c.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const d = buf.getChannelData(ch);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+      }
+      return buf;
+    }
+    _noiseBuffer(seconds) {
+      const c = this.ctx;
+      const len = Math.floor(c.sampleRate * seconds);
+      const buf = c.createBuffer(1, len, c.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      return buf;
+    }
+    /** Nota con envolvente ADSR simplificada. pitch en MIDI salvo que opts.hz sea true. */
+    _tone(pitch, t, dur, opts = {}) {
+      const c = this.ctx;
+      const { type = 'triangle', gain = 0.12, attack = 0.01, release = 0.35, detune = 0, hz = false, dest = this.bus, cutoff = null, glideTo = null } = opts;
+      const osc = c.createOscillator();
+      osc.type = type;
+      const f = hz ? pitch : AudioEngine.mtof(pitch);
+      osc.frequency.setValueAtTime(f, t);
+      if (glideTo) osc.frequency.exponentialRampToValueAtTime(glideTo, t + dur + release);
+      osc.detune.value = detune;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain, t + attack);
+      g.gain.setValueAtTime(gain, Math.max(t + attack, t + dur));
+      g.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(attack, dur) + release);
+      let node = osc;
+      if (cutoff) {
+        const lp = c.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = cutoff;
+        osc.connect(lp);
+        node = lp;
+      }
+      node.connect(g);
+      g.connect(dest);
+      osc.start(t);
+      osc.stop(t + Math.max(attack, dur) + release + 0.05);
+      return { osc, g };
+    }
+    _noise(t, dur, opts = {}) {
+      const c = this.ctx;
+      const { gain = 0.06, type = 'bandpass', freq = 2000, q = 1, sweepTo = null, attack = 0.02, dest = this.bus } = opts;
+      const src = c.createBufferSource();
+      src.buffer = this.noiseBuffer;
+      src.loop = true;
+      const f = c.createBiquadFilter();
+      f.type = type;
+      f.frequency.setValueAtTime(freq, t);
+      if (sweepTo) f.frequency.exponentialRampToValueAtTime(sweepTo, t + dur);
+      f.Q.value = q;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain, t + attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(f); f.connect(g); g.connect(dest);
+      src.start(t);
+      src.stop(t + dur + 0.05);
+    }
+
+    click() {
+      if (!this.ready) return;
+      const t = this.ctx.currentTime;
+      this._tone(84, t, 0.02, { type: 'sine', gain: 0.05, release: 0.06, dest: this.master });
+    }
+    tick() {
+      if (!this.ready) return;
+      const t = this.ctx.currentTime;
+      this._tone(1900, t, 0.01, { type: 'square', gain: 0.025, release: 0.03, hz: true, dest: this.master, cutoff: 4000 });
+    }
+    /** Entrada de pregunta: arpegio de Mi menor añadido sobre un colchón grave y un barrido de ruido. */
+    questionStart() {
+      if (!this.ready) return;
+      const t = this.ctx.currentTime + 0.03;
+      [40, 47, 52].forEach((m) => this._tone(m, t, 1.2, { type: 'sine', gain: 0.06, attack: 0.25, release: 1.1 }));
+      [64, 67, 71, 74, 76].forEach((m, i) => this._tone(m, t + i * 0.075, 0.14, { type: 'triangle', gain: 0.075, release: 0.5 }));
+      this._noise(t, 0.7, { gain: 0.035, freq: 400, sweepTo: 4000, q: 0.8, attack: 0.3 });
+    }
+    /** Bucle de tensión: zumbido grave con trémolo lento y latido cardíaco. */
+    startTension() {
+      if (!this.ready) return;
+      this.stopTension(0.05);
+      const c = this.ctx;
+      const t = c.currentTime;
+      const out = c.createGain();
+      out.gain.setValueAtTime(0.0001, t);
+      out.gain.exponentialRampToValueAtTime(1, t + 1.5);
+      out.connect(this.master);
+      const trem = c.createGain();
+      trem.gain.value = 0.7;
+      const lfo = c.createOscillator();
+      lfo.frequency.value = 0.35;
+      const lfoAmt = c.createGain();
+      lfoAmt.gain.value = 0.3;
+      lfo.connect(lfoAmt); lfoAmt.connect(trem.gain);
+      const lp = c.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 520;
+      lp.connect(trem); trem.connect(out);
+      const voices = [
+        { f: 55, type: 'sine', g: 0.05, d: 0 },
+        { f: 82.41, type: 'triangle', g: 0.022, d: 6 },
+        { f: 110, type: 'sine', g: 0.018, d: -5 },
+        { f: 164.81, type: 'sine', g: 0.008, d: 3 }
+      ];
+      const oscs = voices.map((v) => {
+        const o = c.createOscillator();
+        o.type = v.type; o.frequency.value = v.f; o.detune.value = v.d;
+        const g = c.createGain(); g.gain.value = v.g;
+        o.connect(g); g.connect(lp);
+        o.start(t);
+        return o;
+      });
+      lfo.start(t);
+      this.tension = { out, oscs: oscs.concat([lfo]) };
+      this.urgent = false;
+      this._heartbeat();
+    }
+    _heartbeat() {
+      if (!this.tension) return;
+      const t = this.ctx.currentTime + 0.02;
+      const g = this.urgent ? 0.16 : 0.1;
+      this._tone(68, t, 0.05, { type: 'sine', gain: g, release: 0.16, hz: true, glideTo: 40, dest: this.master });
+      this._tone(62, t + 0.17, 0.04, { type: 'sine', gain: g * 0.6, release: 0.14, hz: true, glideTo: 38, dest: this.master });
+      this.heartbeatTimer = setTimeout(() => this._heartbeat(), this.urgent ? 540 : 1150);
+    }
+    setUrgency(on) { this.urgent = on; }
+    stopTension(fade = 0.4) {
+      clearTimeout(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+      if (!this.tension || !this.ready) { this.tension = null; return; }
+      const { out, oscs } = this.tension;
+      const t = this.ctx.currentTime;
+      out.gain.cancelScheduledValues(t);
+      out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), t);
+      out.gain.exponentialRampToValueAtTime(0.0001, t + fade);
+      oscs.forEach((o) => { try { o.stop(t + fade + 0.1); } catch (e) { /* ya detenido */ } });
+      this.tension = null;
+      this.urgent = false;
+    }
+    /** "Respuesta definitiva": acorde disminuido con filtro que se abre, trémolo y redoble de timbal. */
+    finalAnswer() {
+      if (!this.ready) return;
+      const c = this.ctx;
+      const t = c.currentTime + 0.02;
+      const dur = SUSPENSE_MS / 1000;
+      const lp = c.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.setValueAtTime(240, t);
+      lp.frequency.exponentialRampToValueAtTime(2600, t + dur);
+      lp.Q.value = 4;
+      const env = c.createGain();
+      env.gain.setValueAtTime(0.0001, t);
+      env.gain.exponentialRampToValueAtTime(0.09, t + dur * 0.95);
+      env.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.08);
+      const trem = c.createGain();
+      trem.gain.value = 0.75;
+      const lfo = c.createOscillator();
+      lfo.frequency.setValueAtTime(5, t);
+      lfo.frequency.linearRampToValueAtTime(11, t + dur);
+      const lfoAmt = c.createGain();
+      lfoAmt.gain.value = 0.25;
+      lfo.connect(lfoAmt); lfoAmt.connect(trem.gain);
+      lp.connect(trem); trem.connect(env); env.connect(this.bus);
+      [45, 57, 60, 63, 66].forEach((m, i) => {
+        const o = c.createOscillator();
+        o.type = 'sawtooth';
+        o.frequency.value = AudioEngine.mtof(m);
+        o.detune.value = (i % 2 ? 7 : -7);
+        o.connect(lp);
+        o.start(t); o.stop(t + dur + 0.15);
+      });
+      lfo.start(t); lfo.stop(t + dur + 0.15);
+      this._noise(t, dur, { gain: 0.09, type: 'lowpass', freq: 160, q: 0.7, attack: dur * 0.9 });
+    }
+    /** Acierto: arpegio mayor ascendente y acorde de Do mayor con brillo. */
+    correct() {
+      if (!this.ready) return;
+      const t = this.ctx.currentTime + 0.02;
+      [60, 64, 67, 72, 76, 79].forEach((m, i) => this._tone(m, t + i * 0.06, 0.12, { type: 'triangle', gain: 0.09, release: 0.45 }));
+      const ct = t + 0.4;
+      [48, 60, 64, 67, 72, 76].forEach((m) => {
+        this._tone(m, ct, 1.0, { type: 'triangle', gain: 0.055, attack: 0.02, release: 1.3 });
+        this._tone(m + 12, ct, 0.6, { type: 'sine', gain: 0.025, attack: 0.02, release: 1.0 });
+      });
+      this._noise(ct, 0.9, { gain: 0.025, type: 'highpass', freq: 7000, q: 0.5 });
+    }
+    /** Error: racimo disonante grave que cae de afinación. */
+    wrong() {
+      if (!this.ready) return;
+      const t = this.ctx.currentTime + 0.02;
+      [36, 37, 42, 43, 49].forEach((m) => {
+        const f = AudioEngine.mtof(m);
+        this._tone(f, t, 1.0, { type: 'sawtooth', gain: 0.06, attack: 0.01, release: 0.9, hz: true, cutoff: 750, glideTo: f * 0.78 });
+      });
+      this._tone(70, t, 0.1, { type: 'sine', gain: 0.25, release: 0.5, hz: true, glideTo: 30, dest: this.master });
+    }
+    /** Comodín: glissando por tonos enteros con destello. */
+    lifeline() {
+      if (!this.ready) return;
+      const t = this.ctx.currentTime + 0.02;
+      [72, 74, 76, 78, 80, 82, 84].forEach((m, i) => this._tone(m, t + i * 0.045, 0.08, { type: 'sine', gain: 0.07, release: 0.5 }));
+      this._noise(t, 0.6, { gain: 0.02, type: 'highpass', freq: 5000, sweepTo: 9000 });
+    }
+    /** Tono de llamada telefónica (dos frecuencias moduladas). */
+    ring() {
+      if (!this.ready) return;
+      const c = this.ctx;
+      const t = c.currentTime + 0.02;
+      [0, 0.55].forEach((offset) => {
+        [440, 480].forEach((f) => {
+          const o = c.createOscillator();
+          o.type = 'sine'; o.frequency.value = f;
+          const g = c.createGain();
+          const start = t + offset;
+          g.gain.setValueAtTime(0.0001, start);
+          g.gain.exponentialRampToValueAtTime(0.04, start + 0.02);
+          g.gain.setValueAtTime(0.04, start + 0.38);
+          g.gain.exponentialRampToValueAtTime(0.0001, start + 0.42);
+          const am = c.createGain(); am.gain.value = 0.5;
+          const lfo = c.createOscillator(); lfo.frequency.value = 20;
+          const lfoAmt = c.createGain(); lfoAmt.gain.value = 0.5;
+          lfo.connect(lfoAmt); lfoAmt.connect(am.gain);
+          o.connect(am); am.connect(g); g.connect(this.master);
+          o.start(start); o.stop(start + 0.45);
+          lfo.start(start); lfo.stop(start + 0.45);
+        });
+      });
+    }
+    /** Retirada: cadencia plagal (IV - I) tranquila. */
+    cashOut() {
+      if (!this.ready) return;
+      const t = this.ctx.currentTime + 0.02;
+      [53, 57, 60, 65].forEach((m) => this._tone(m, t, 0.5, { type: 'triangle', gain: 0.05, attack: 0.06, release: 0.4 }));
+      [48, 52, 55, 60, 64].forEach((m) => this._tone(m, t + 0.6, 1.0, { type: 'triangle', gain: 0.05, attack: 0.06, release: 1.2 }));
+    }
+    /** Victoria: fanfarria de metales sintetizados y acorde final. */
+    victory() {
+      if (!this.ready) return;
+      const t = this.ctx.currentTime + 0.05;
+      const brass = { type: 'sawtooth', gain: 0.05, attack: 0.03, release: 0.25, cutoff: 1900 };
+      [[67, 0], [72, 0.16], [76, 0.32], [79, 0.5], [76, 0.72], [79, 0.86]].forEach(([m, d]) => {
+        this._tone(m, t + d, 0.13, brass);
+        this._tone(m - 12, t + d, 0.13, Object.assign({}, brass, { gain: 0.03 }));
+      });
+      const ct = t + 1.1;
+      [48, 55, 60, 64, 67, 72, 76, 79].forEach((m) => this._tone(m, ct, 1.8, Object.assign({}, brass, { gain: 0.035, attack: 0.05, release: 1.6 })));
+      [84, 88, 91, 96].forEach((m, i) => this._tone(m, ct + 0.3 + i * 0.12, 0.1, { type: 'sine', gain: 0.04, release: 0.8 }));
+      this._noise(ct, 2.2, { gain: 0.05, type: 'highpass', freq: 6000, q: 0.4, attack: 0.01 });
+      this._tone(55, ct, 0.2, { type: 'sine', gain: 0.25, release: 0.9, hz: true, glideTo: 35, dest: this.master });
+    }
+  }
+
+  /* =========================================================================
+     5. CountdownTimer + GameState · máquina de estados finitos
+     ========================================================================= */
+  class CountdownTimer {
+    constructor(onTick, onExpire) {
+      this.onTick = onTick;
+      this.onExpire = onExpire;
+      this.total = 0;
+      this.remainingMs = 0;
+      this.running = false;
+      this.intervalId = null;
+      this.last = 0;
+    }
+    start(seconds) {
+      this.stop();
+      this.total = seconds;
+      this.remainingMs = seconds * 1000;
+      this.onTick(seconds, seconds);
+      this.resume();
+    }
+    resume() {
+      if (this.running || this.remainingMs <= 0) return;
+      this.running = true;
+      this.last = performance.now();
+      this.intervalId = setInterval(() => this._step(), 100);
+    }
+    pause() {
+      if (!this.running) return;
+      this._step();
+      this.running = false;
+      clearInterval(this.intervalId);
+    }
+    stop() {
+      this.running = false;
+      clearInterval(this.intervalId);
+    }
+    _step() {
+      if (!this.running) return;
+      const now = performance.now();
+      this.remainingMs -= now - this.last;
+      this.last = now;
+      if (this.remainingMs <= 0) {
+        this.remainingMs = 0;
+        this.stop();
+        this.onTick(0, this.total);
+        this.onExpire();
+        return;
+      }
+      this.onTick(this.remainingMs / 1000, this.total);
+    }
+  }
+
+  class Emitter {
+    constructor() { this.handlers = {}; }
+    on(evt, fn) { (this.handlers[evt] = this.handlers[evt] || []).push(fn); return this; }
+    emit(evt, payload) { (this.handlers[evt] || []).forEach((fn) => fn(payload)); }
+  }
+
+  const STATES = Object.freeze({
+    IDLE: 'IDLE',
+    QUESTION_ACTIVE: 'QUESTION_ACTIVE',
+    LOCKED_ANSWER: 'LOCKED_ANSWER',
+    REVEALING: 'REVEALING',
+    GAME_OVER: 'GAME_OVER',
+    VICTORY: 'VICTORY'
+  });
+
+  const TRANSITIONS = Object.freeze({
+    IDLE: ['QUESTION_ACTIVE'],
+    QUESTION_ACTIVE: ['LOCKED_ANSWER', 'REVEALING', 'GAME_OVER'],
+    LOCKED_ANSWER: ['REVEALING'],
+    REVEALING: ['QUESTION_ACTIVE', 'GAME_OVER', 'VICTORY'],
+    GAME_OVER: ['IDLE'],
+    VICTORY: ['IDLE']
+  });
+
+  class GameState extends Emitter {
+    constructor() {
+      super();
+      this.status = STATES.IDLE;
+      this.timer = new CountdownTimer(
+        (left, total) => { this.timeLeft = left; this.emit('tick', { left, total }); },
+        () => this.timeout()
+      );
+      this.reset();
+    }
+    reset() {
+      this.level = 1;
+      this.questions = [];
+      this.spares = { 1: [], 2: [], 3: [] };
+      this.lifelines = { fifty: true, phone: true, audience: true, switch: true };
+      this.lifelinesUsed = [];
+      this.removed = new Set();
+      this.selected = null;
+      this.lastResult = null;
+      this.outcome = null;
+      this.correctCount = 0;
+      this.timeLeft = 0;
+      this.pendingReplacement = null;
+      this.playerName = 'Invitado';
+    }
+    transition(to) {
+      const allowed = TRANSITIONS[this.status] || [];
+      if (!allowed.includes(to)) throw new Error('Transición no permitida: ' + this.status + ' → ' + to);
+      const from = this.status;
+      this.status = to;
+      this.emit('state', { from, to });
+    }
+    is(state) { return this.status === state; }
+
+    get currentQuestion() { return this.questions[this.level - 1]; }
+    get tier() { return QuestionRepository.tierForLevel(this.level); }
+    get prizeAtStake() { return PRIZES[this.level - 1]; }
+    get banked() { return this.level > 1 ? PRIZES[this.level - 2] : 0; }
+    get guaranteed() {
+      let amount = 0;
+      SAFE_LEVELS.forEach((s) => { if (s <= this.level - 1) amount = PRIZES[s - 1]; });
+      return amount;
+    }
+    isSafeLevel(level) { return SAFE_LEVELS.includes(level); }
+
+    newGame(set, playerName) {
+      this.timer.stop();
+      if (this.is(STATES.GAME_OVER) || this.is(STATES.VICTORY)) this.transition(STATES.IDLE);
+      if (!this.is(STATES.IDLE)) {
+        // Partida abandonada a medias: se fuerza el reinicio de la máquina.
+        this.status = STATES.IDLE;
+      }
+      this.reset();
+      this.questions = set.questions;
+      this.spares = set.spares;
+      this.playerName = playerName;
+      this.transition(STATES.QUESTION_ACTIVE);
+      this._presentQuestion();
+    }
+    _presentQuestion() {
+      this.removed = new Set();
+      this.selected = null;
+      this.emit('question', {
+        question: this.currentQuestion,
+        level: this.level,
+        tier: this.tier,
+        prize: this.prizeAtStake,
+        banked: this.banked,
+        guaranteed: this.guaranteed,
+        lifelines: Object.assign({}, this.lifelines)
+      });
+      this.timer.start(TIER_CONFIG[this.tier].time);
+    }
+    select(index) {
+      if (!this.is(STATES.QUESTION_ACTIVE) || this.removed.has(index)) return false;
+      this.selected = index;
+      this.emit('select', { index });
+      return true;
+    }
+    clearSelection() {
+      this.selected = null;
+    }
+    lockAnswer() {
+      if (!this.is(STATES.QUESTION_ACTIVE) || this.selected === null) return false;
+      this.timer.stop();
+      this.transition(STATES.LOCKED_ANSWER);
+      this.emit('locked', { index: this.selected });
+      return true;
+    }
+    reveal() {
+      if (!this.is(STATES.LOCKED_ANSWER)) return null;
+      const q = this.currentQuestion;
+      const correct = this.selected === q.correct;
+      if (correct) this.correctCount += 1;
+      this.lastResult = { correct, reason: correct ? 'correct' : 'wrong', selected: this.selected, correctIndex: q.correct, question: q, level: this.level };
+      this.transition(STATES.REVEALING);
+      this.emit('revealed', this.lastResult);
+      return this.lastResult;
+    }
+    timeout() {
+      if (!this.is(STATES.QUESTION_ACTIVE)) return;
+      const q = this.currentQuestion;
+      this.lastResult = { correct: false, reason: 'timeout', selected: null, correctIndex: q.correct, question: q, level: this.level };
+      this.transition(STATES.REVEALING);
+      this.emit('revealed', this.lastResult);
+    }
+    advance() {
+      if (!this.is(STATES.REVEALING)) return;
+      const r = this.lastResult;
+      if (r.correct) {
+        if (this.level === TOTAL_LEVELS) {
+          this.outcome = { reason: 'victory', amount: PRIZES[TOTAL_LEVELS - 1], level: this.level, question: r.question, correctIndex: r.correctIndex };
+          this.transition(STATES.VICTORY);
+          this.emit('end', this.outcome);
+          return;
+        }
+        this.level += 1;
+        this.transition(STATES.QUESTION_ACTIVE);
+        this._presentQuestion();
+      } else {
+        this.outcome = { reason: r.reason, amount: this.guaranteed, level: this.level, question: r.question, correctIndex: r.correctIndex };
+        this.transition(STATES.GAME_OVER);
+        this.emit('end', this.outcome);
+      }
+    }
+    withdraw() {
+      if (!this.is(STATES.QUESTION_ACTIVE)) return;
+      this.timer.stop();
+      const q = this.currentQuestion;
+      this.outcome = { reason: 'withdraw', amount: this.banked, level: this.level, question: q, correctIndex: q.correct };
+      this.transition(STATES.GAME_OVER);
+      this.emit('end', this.outcome);
+    }
+    pauseTimer() { this.timer.pause(); }
+    resumeTimer() { if (this.is(STATES.QUESTION_ACTIVE)) this.timer.resume(); }
+
+    /* ----- Comodines ----- */
+    canUse(name) {
+      if (!this.is(STATES.QUESTION_ACTIVE) || !this.lifelines[name]) return false;
+      if (name === 'switch' && this.level < SWITCH_UNLOCK_LEVEL) return false;
+      if (name === 'fifty') {
+        const wrongVisible = [0, 1, 2, 3].filter((i) => i !== this.currentQuestion.correct && !this.removed.has(i));
+        if (wrongVisible.length < 2) return false;
+      }
+      return true;
+    }
+    _consume(name) {
+      this.lifelines[name] = false;
+      this.lifelinesUsed.push(name);
+      this.selected = null;
+    }
+    useFifty() {
+      if (!this.canUse('fifty')) return null;
+      this._consume('fifty');
+      const q = this.currentQuestion;
+      const wrong = QuestionRepository.shuffle([0, 1, 2, 3].filter((i) => i !== q.correct && !this.removed.has(i)));
+      const toRemove = wrong.slice(0, 2);
+      toRemove.forEach((i) => this.removed.add(i));
+      return toRemove;
+    }
+    visibleOptions() {
+      return [0, 1, 2, 3].filter((i) => !this.removed.has(i));
+    }
+    usePhone() {
+      if (!this.canUse('phone')) return null;
+      this._consume('phone');
+      const q = this.currentQuestion;
+      const cfg = TIER_CONFIG[this.tier];
+      const isRight = Math.random() < cfg.phoneAccuracy;
+      let suggestion = q.correct;
+      if (!isRight) {
+        const wrong = this.visibleOptions().filter((i) => i !== q.correct);
+        suggestion = wrong[randInt(0, wrong.length - 1)];
+      }
+      const confidence = isRight
+        ? randInt(cfg.phoneConfidence[0], cfg.phoneConfidence[1])
+        : randInt(cfg.phoneConfidence[0] - 24, cfg.phoneConfidence[0] - 12);
+      return { suggestion, confidence, isRight, hint: q.hint, text: q.options[suggestion], letter: LETTERS[suggestion], tier: this.tier };
+    }
+    useAudience() {
+      if (!this.canUse('audience')) return null;
+      this._consume('audience');
+      const q = this.currentQuestion;
+      const cfg = TIER_CONFIG[this.tier];
+      const visible = this.visibleOptions();
+      let correctShare = randRange(cfg.audienceCorrect[0], cfg.audienceCorrect[1]);
+      if (visible.length === 2) correctShare = Math.min(0.9, correctShare + 0.14);
+      const others = visible.filter((i) => i !== q.correct);
+      const weights = others.map(() => Math.random() + 0.25);
+      const wSum = weights.reduce((a, b) => a + b, 0);
+      const raw = [0, 0, 0, 0];
+      raw[q.correct] = correctShare;
+      others.forEach((i, k) => { raw[i] = (1 - correctShare) * (weights[k] / wSum); });
+      // Redondeo por mayor resto para que la suma sea exactamente 100.
+      const pct = raw.map((v) => Math.floor(v * 100));
+      let rest = 100 - pct.reduce((a, b) => a + b, 0);
+      const byRemainder = visible.slice().sort((a, b) => (raw[b] * 100 - pct[b]) - (raw[a] * 100 - pct[a]));
+      let k = 0;
+      while (rest > 0) { pct[byRemainder[k % byRemainder.length]] += 1; rest -= 1; k += 1; }
+      return { percents: pct, visible, tier: this.tier };
+    }
+    useSwitch() {
+      if (!this.canUse('switch')) return null;
+      const pool = this.spares[this.tier] || [];
+      if (!pool.length) return null;
+      this._consume('switch');
+      this.timer.stop();
+      const old = this.currentQuestion;
+      this.pendingReplacement = pool.shift();
+      return { old, correctIndex: old.correct };
+    }
+    loadSwitchedQuestion() {
+      if (!this.pendingReplacement || !this.is(STATES.QUESTION_ACTIVE)) return;
+      this.questions[this.level - 1] = this.pendingReplacement;
+      this.pendingReplacement = null;
+      this._presentQuestion();
+    }
+  }
+
+  /* =========================================================================
+     6. UIManager · vistas, animaciones y modales
+     ========================================================================= */
+  class UIManager {
+    constructor(doc) {
+      this.doc = doc;
+      const $ = (sel) => doc.querySelector(sel);
+      this.$ = $;
+      this.screens = { start: $('#screen-start'), game: $('#screen-game'), end: $('#screen-end') };
+      this.el = {
+        playerName: $('#player-name'),
+        startForm: $('#start-form'),
+        miniLadder: $('#mini-ladder'),
+        boardStart: $('#board-start'),
+        boardEnd: $('#board-end'),
+        stats: $('#stats'),
+        rungs: $('#rungs'),
+        ladder: $('#ladder'),
+        ladderScrim: $('#ladder-scrim'),
+        ladderToggle: $('#btn-ladder'),
+        ladderLabel: $('#btn-ladder-label'),
+        footSafe: $('#foot-safe'),
+        footBank: $('#foot-bank'),
+        levelStrip: $('#level-strip'),
+        qWrap: $('#question-wrap'),
+        qText: $('#q-text'),
+        qTopic: $('#q-topic'),
+        answers: $('#answers'),
+        confirmBar: $('#confirm-bar'),
+        confirmText: $('#confirm-text'),
+        btnFinal: $('#btn-final'),
+        notice: $('#notice'),
+        timer: $('#timer'),
+        timerBar: $('#timer-bar'),
+        timerNum: $('#timer-num'),
+        withdrawBtn: $('#btn-withdraw'),
+        withdrawAmt: $('#withdraw-amt'),
+        mute: $('#btn-mute'),
+        muteLabel: $('#btn-mute-label'),
+        toast: $('#toast'),
+        live: $('#sr-live'),
+        fx: $('#fx')
+      };
+      this.answerBtns = Array.from(doc.querySelectorAll('.answer'));
+      this.lifelineBtns = Array.from(doc.querySelectorAll('.lifeline'));
+      this.circ = 2 * Math.PI * 28;
+      this.typeToken = 0;
+      this.openModalId = null;
+      this.lastFocus = null;
+      this.toastTimer = null;
+      this.buildLadder();
+      this.buildMiniLadder();
+    }
+
+    /* ----- Pantallas ----- */
+    showScreen(name) {
+      Object.keys(this.screens).forEach((k) => { this.screens[k].hidden = k !== name; });
+      this.closeLadder();
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+    getPlayerName() {
+      return this.el.playerName.value.trim().replace(/\s+/g, ' ').slice(0, 18);
+    }
+    setPlayerName(name) { this.el.playerName.value = name || ''; }
+    announce(text) {
+      this.el.live.textContent = '';
+      setTimeout(() => { this.el.live.textContent = text; }, 30);
+    }
+    toast(text, ms = 2600) {
+      clearTimeout(this.toastTimer);
+      this.el.toast.textContent = text;
+      this.el.toast.hidden = false;
+      this.toastTimer = setTimeout(() => { this.el.toast.hidden = true; }, ms);
+    }
+    setMuted(muted) {
+      this.el.mute.setAttribute('aria-pressed', String(muted));
+      this.el.mute.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar sonido');
+      this.el.muteLabel.textContent = muted ? 'Silencio' : 'Sonido';
+    }
+
+    /* ----- Escalera de premios ----- */
+    buildLadder() {
+      const frag = this.doc.createDocumentFragment();
+      for (let lvl = TOTAL_LEVELS; lvl >= 1; lvl--) {
+        const li = this.doc.createElement('li');
+        li.className = 'rung';
+        li.dataset.level = String(lvl);
+        if (SAFE_LEVELS.includes(lvl)) li.classList.add('is-safe');
+        if (lvl === TOTAL_LEVELS) li.classList.add('is-top');
+        const num = this.doc.createElement('span'); num.className = 'r-num'; num.textContent = String(lvl);
+        const amt = this.doc.createElement('span'); amt.className = 'r-amt'; amt.textContent = fmtMoney(PRIZES[lvl - 1]);
+        const flag = this.doc.createElement('span'); flag.className = 'r-flag';
+        flag.textContent = SAFE_LEVELS.includes(lvl) ? 'Piso seguro' : '';
+        li.append(num, flag, amt);
+        li.setAttribute('aria-label', 'Pregunta ' + lvl + ': ' + fmtMoney(PRIZES[lvl - 1]) + (SAFE_LEVELS.includes(lvl) ? ', piso seguro' : ''));
+        frag.appendChild(li);
+      }
+      this.el.rungs.appendChild(frag);
+      this.rungEls = Array.from(this.el.rungs.querySelectorAll('.rung'));
+    }
+    buildMiniLadder() {
+      const frag = this.doc.createDocumentFragment();
+      for (let lvl = TOTAL_LEVELS; lvl >= 1; lvl--) {
+        const li = this.doc.createElement('li');
+        if (SAFE_LEVELS.includes(lvl)) li.className = 'safe';
+        if (lvl === TOTAL_LEVELS) li.className = 'top';
+        const a = this.doc.createElement('span'); a.textContent = String(lvl);
+        const b = this.doc.createElement('span'); b.textContent = fmtMoney(PRIZES[lvl - 1]) + (SAFE_LEVELS.includes(lvl) ? '  ◆' : '');
+        li.append(a, b);
+        frag.appendChild(li);
+      }
+      this.el.miniLadder.appendChild(frag);
+    }
+    renderLadder(level, { lostAt = null } = {}) {
+      this.rungEls.forEach((li) => {
+        const lvl = Number(li.dataset.level);
+        li.classList.toggle('is-current', lvl === level && lostAt === null);
+        li.classList.toggle('is-passed', lvl < level);
+        li.classList.toggle('is-lost', lostAt !== null && lvl === lostAt);
+        if (lvl === level) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+      });
+    }
+    renderMoneyInfo(banked, guaranteed) {
+      this.el.footSafe.textContent = fmtMoney(guaranteed);
+      this.el.footBank.textContent = fmtMoney(banked);
+      this.el.withdrawAmt.textContent = fmtMoney(banked);
+    }
+    openLadder() {
+      this.el.ladder.classList.add('is-open');
+      this.el.ladderScrim.classList.add('is-open');
+      this.el.ladderToggle.setAttribute('aria-expanded', 'true');
+    }
+    closeLadder() {
+      this.el.ladder.classList.remove('is-open');
+      this.el.ladderScrim.classList.remove('is-open');
+      this.el.ladderToggle.setAttribute('aria-expanded', 'false');
+    }
+    toggleLadder() {
+      if (this.el.ladder.classList.contains('is-open')) this.closeLadder(); else this.openLadder();
+    }
+    setLadderLabel(level, prize) {
+      this.el.ladderLabel.textContent = level ? ('P' + level + ' · ' + fmtMoney(prize)) : 'Premios';
+    }
+
+    /* ----- Pregunta y respuestas ----- */
+    renderQuestion({ question, level, tier, prize, banked, guaranteed }) {
+      const cfg = TIER_CONFIG[tier];
+      this.el.qText.textContent = question.text;
+      this.el.qTopic.textContent = question.topic;
+      this.answerBtns.forEach((btn, i) => {
+        btn.className = 'answer chamfer';
+        btn.disabled = false;
+        btn.querySelector('.ans-text').textContent = question.options[i];
+        btn.setAttribute('aria-label', 'Opción ' + LETTERS[i] + ': ' + question.options[i]);
+      });
+      this.el.levelStrip.replaceChildren(
+        this._chip('Pregunta', level + ' de ' + TOTAL_LEVELS),
+        this._chip('Bloque', cfg.name, 'tier-' + tier),
+        this._chip('Juegas por', fmtMoney(prize), 'gold'),
+        this._chip('Asegurado', fmtMoney(guaranteed))
+      );
+      this.hideConfirm();
+      this.hideNotice();
+      this.renderLadder(level);
+      this.renderMoneyInfo(banked, guaranteed);
+      this.setLadderLabel(level, prize);
+      if (!prefersReducedMotion()) {
+        [this.el.answers, this.el.qWrap].forEach((el) => { el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter'); });
+      }
+    }
+    _chip(label, value, extra) {
+      const s = this.doc.createElement('span');
+      s.className = 'chip' + (extra ? ' ' + extra : '');
+      s.append(label + ' ');
+      const b = this.doc.createElement('b');
+      b.textContent = value;
+      s.appendChild(b);
+      return s;
+    }
+    setAnswersEnabled(enabled, removed = new Set()) {
+      this.answerBtns.forEach((btn, i) => { btn.disabled = !enabled || removed.has(i); });
+    }
+    markChosen(index) {
+      this.answerBtns.forEach((btn, i) => btn.classList.toggle('is-chosen', i === index));
+    }
+    clearChosen() {
+      this.answerBtns.forEach((btn) => btn.classList.remove('is-chosen'));
+    }
+    showConfirm(index, text) {
+      this.el.confirmText.replaceChildren('¿Es tu respuesta definitiva? Marcaste la ');
+      const b = this.doc.createElement('b');
+      b.textContent = LETTERS[index] + ': «' + text + '»';
+      this.el.confirmText.appendChild(b);
+      this.el.confirmBar.hidden = false;
+    }
+    hideConfirm() { this.el.confirmBar.hidden = true; }
+    setLocked(index) {
+      this.answerBtns.forEach((btn, i) => {
+        btn.disabled = true;
+        btn.classList.remove('is-chosen');
+        if (i === index) btn.classList.add('is-locked');
+        else if (!btn.classList.contains('is-removed')) btn.classList.add('is-dim');
+      });
+    }
+    markCorrect(index) {
+      const btn = this.answerBtns[index];
+      btn.classList.remove('is-locked', 'is-dim', 'is-chosen', 'is-removed');
+      btn.classList.add('is-correct');
+    }
+    markWrong(index) {
+      const btn = this.answerBtns[index];
+      btn.classList.remove('is-locked', 'is-dim', 'is-chosen');
+      btn.classList.add('is-wrong');
+    }
+    disableAll() {
+      this.answerBtns.forEach((btn) => { btn.disabled = true; });
+    }
+    removeOptions(indices) {
+      indices.forEach((i) => {
+        const btn = this.answerBtns[i];
+        btn.classList.remove('is-chosen');
+        btn.classList.add('is-removed');
+        btn.disabled = true;
+        btn.setAttribute('aria-label', 'Opción ' + LETTERS[i] + ' eliminada');
+      });
+    }
+    showNotice(text) {
+      this.el.notice.textContent = text;
+      this.el.notice.hidden = false;
+    }
+    hideNotice() { this.el.notice.hidden = true; }
+
+    /* ----- Temporizador ----- */
+    renderTimer(left, total) {
+      const ratio = total > 0 ? Math.max(0, Math.min(1, left / total)) : 0;
+      this.el.timerBar.style.strokeDasharray = String(this.circ);
+      this.el.timerBar.style.strokeDashoffset = String(this.circ * (1 - ratio));
+      const secs = Math.ceil(left);
+      this.el.timerNum.textContent = String(secs);
+      this.el.timer.classList.toggle('is-warn', secs <= 10 && secs > 5);
+      this.el.timer.classList.toggle('is-danger', secs <= 5);
+      this.el.timer.setAttribute('aria-label', 'Tiempo restante: ' + secs + ' segundos');
+    }
+    setTimerPaused(paused) { this.el.timer.classList.toggle('is-paused', paused); }
+
+    /* ----- Comodines ----- */
+    renderLifelines(lifelines, level, interactive) {
+      this.lifelineBtns.forEach((btn) => {
+        const name = btn.dataset.lifeline;
+        const available = !!lifelines[name];
+        const locked = name === 'switch' && level < SWITCH_UNLOCK_LEVEL && available;
+        btn.classList.toggle('is-used', !available);
+        btn.classList.toggle('is-locked', locked);
+        btn.disabled = !available || !interactive;
+        btn.setAttribute('aria-disabled', String(locked));
+        let label = 'Comodín ' + LIFELINE_NAMES[name];
+        if (!available) label += ' (ya usado)';
+        else if (locked) label += ' (disponible desde la pregunta ' + SWITCH_UNLOCK_LEVEL + ')';
+        btn.setAttribute('aria-label', label);
+      });
+    }
+    setControlsEnabled(enabled, lifelines, level) {
+      this.el.withdrawBtn.disabled = !enabled;
+      this.renderLifelines(lifelines, level, enabled);
+    }
+
+    /* ----- Modales ----- */
+    openModal(id) {
+      const overlay = this.$('#' + id);
+      if (!overlay) return;
+      if (this.openModalId && this.openModalId !== id) this.closeModal(this.openModalId, false);
+      this.lastFocus = this.doc.activeElement;
+      overlay.hidden = false;
+      this.openModalId = id;
+      const focusable = overlay.querySelector('.modal-actions .btn-gold') || overlay.querySelector('button');
+      if (focusable) setTimeout(() => focusable.focus(), 40);
+    }
+    closeModal(id, restoreFocus = true) {
+      const overlay = this.$('#' + id);
+      if (!overlay) return;
+      overlay.hidden = true;
+      if (this.openModalId === id) this.openModalId = null;
+      if (restoreFocus && this.lastFocus && typeof this.lastFocus.focus === 'function' && !this.lastFocus.disabled) {
+        try { this.lastFocus.focus(); } catch (e) { /* elemento oculto */ }
+      }
+    }
+    closeAllModals() {
+      ['modal-phone', 'modal-audience', 'modal-feedback', 'modal-confirm'].forEach((id) => this.closeModal(id, false));
+      this.typeToken += 1;
+    }
+    trapFocus(e) {
+      if (!this.openModalId || e.key !== 'Tab') return;
+      const overlay = this.$('#' + this.openModalId);
+      const items = Array.from(overlay.querySelectorAll('button:not([disabled])')).filter((b) => b.offsetParent !== null);
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && this.doc.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && this.doc.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+
+    confirmDialog({ title, body, okLabel, cancelLabel, danger = false }) {
+      this.$('#cf-title').textContent = title;
+      this.$('#cf-body').textContent = body;
+      const ok = this.$('#btn-cf-ok');
+      ok.textContent = okLabel;
+      ok.className = 'btn ' + (danger ? 'btn-danger' : 'btn-gold');
+      this.$('#btn-cf-cancel').textContent = cancelLabel;
+      this.openModal('modal-confirm');
+      setTimeout(() => this.$('#btn-cf-cancel').focus(), 50);
+    }
+
+    /** Efecto máquina de escribir con cancelación. */
+    typewrite(el, text, speed = 22) {
+      const token = ++this.typeToken;
+      el.textContent = '';
+      if (prefersReducedMotion()) { el.textContent = text; return Promise.resolve(); }
+      const caret = this.doc.createElement('span');
+      caret.className = 'caret';
+      const node = this.doc.createTextNode('');
+      el.append(node, caret);
+      return new Promise((resolve) => {
+        let i = 0;
+        const step = () => {
+          if (token !== this.typeToken) { resolve(); return; }
+          i += 1;
+          node.data = text.slice(0, i);
+          if (i >= text.length) { caret.remove(); resolve(); return; }
+          const ch = text[i - 1];
+          const pause = (ch === '.' || ch === '?' || ch === '!') ? speed * 9 : (ch === ',' || ch === ':') ? speed * 4 : speed;
+          setTimeout(step, pause);
+        };
+        setTimeout(step, speed);
+      });
+    }
+    finishTyping(el, text) {
+      this.typeToken += 1;
+      el.textContent = text;
+    }
+
+    openPhone() {
+      this.$('#phone-speech').textContent = '';
+      this.$('#phone-status').textContent = 'Llamando…';
+      this.$('#phone-avatar').classList.add('ringing');
+      this.$('#btn-phone-skip').hidden = false;
+      this.openModal('modal-phone');
+    }
+    phoneConnected() {
+      this.$('#phone-status').textContent = 'En línea';
+      this.$('#phone-avatar').classList.remove('ringing');
+    }
+
+    openAudience({ percents, visible, tier }) {
+      const chart = this.$('#aud-chart');
+      chart.replaceChildren();
+      const max = Math.max.apply(null, percents);
+      const cols = percents.map((p, i) => {
+        const col = this.doc.createElement('div');
+        col.className = 'bar-col' + (visible.includes(i) ? '' : ' is-off') + (p === max && p > 0 ? ' is-top' : '');
+        const pct = this.doc.createElement('span');
+        pct.className = 'bar-pct';
+        pct.textContent = '0%';
+        const bar = this.doc.createElement('div');
+        bar.className = 'bar';
+        bar.setAttribute('role', 'img');
+        bar.setAttribute('aria-label', 'Opción ' + LETTERS[i] + ': ' + p + ' por ciento');
+        col.append(pct, bar);
+        chart.appendChild(col);
+        return { pct, bar, value: p };
+      });
+      const notes = {
+        1: 'La orquesta lo tiene bastante claro en esta pregunta.',
+        2: 'Los atriles empiezan a dudar: hay división entre secciones.',
+        3: 'Pregunta difícil: la orquesta está muy dividida. Úsalo con cautela.'
+      };
+      this.$('#aud-note').textContent = notes[tier];
+      this.openModal('modal-audience');
+      const reduce = prefersReducedMotion();
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        cols.forEach((c) => { c.bar.style.height = Math.max(c.value, 0.5) + '%'; });
+      }));
+      const start = performance.now();
+      const dur = reduce ? 1 : 1400;
+      const step = (now) => {
+        const k = Math.max(0, Math.min(1, (now - start) / dur));
+        const ease = 1 - Math.pow(1 - k, 3);
+        cols.forEach((c) => { c.pct.textContent = Math.round(c.value * ease) + '%'; });
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    showFeedback({ ok, badge, title, answerLetter, answerText, explanation, money, moneySafe, buttonLabel }) {
+      const badgeEl = this.$('#fb-badge');
+      badgeEl.textContent = badge;
+      badgeEl.className = 'fb-badge ' + (ok ? 'ok' : 'bad');
+      this.$('#fb-title').textContent = title;
+      const ans = this.$('#fb-answer');
+      ans.replaceChildren();
+      const b = this.doc.createElement('b');
+      b.textContent = answerLetter;
+      ans.append(b, answerText);
+      this.$('#fb-explain').textContent = explanation;
+      const m = this.$('#fb-money');
+      m.textContent = money;
+      m.className = 'fb-money' + (moneySafe ? ' safe' : '');
+      this.$('#btn-fb-next').textContent = buttonLabel;
+      this.openModal('modal-feedback');
+    }
+
+    /* ----- Inicio: ranking y estadísticas ----- */
+    renderBoard(target, list, highlightId = null, limit = 10) {
+      target.replaceChildren();
+      if (!list.length) {
+        const p = this.doc.createElement('p');
+        p.className = 'empty-note';
+        p.textContent = 'Aún no hay partidas guardadas. Juega la primera y tu nombre aparecerá aquí.';
+        target.appendChild(p);
+        return;
+      }
+      list.slice(0, limit).forEach((e, i) => {
+        const li = this.doc.createElement('li');
+        if (e.id === highlightId) li.className = 'is-new';
+        const r = this.doc.createElement('span'); r.className = 'b-rank'; r.textContent = String(i + 1);
+        const n = this.doc.createElement('span'); n.className = 'b-name'; n.textContent = e.name;
+        const meta = this.doc.createElement('span'); meta.className = 'b-meta';
+        let dateTxt = '';
+        try { dateTxt = new Date(e.date).toLocaleDateString('es', { day: '2-digit', month: 'short' }); } catch (err) { dateTxt = ''; }
+        meta.textContent = e.correct + '/15 aciertos' + (dateTxt ? ' · ' + dateTxt : '');
+        n.appendChild(meta);
+        const a = this.doc.createElement('span'); a.className = 'b-amt'; a.textContent = fmtMoney(e.amount);
+        li.append(r, n, a);
+        target.appendChild(li);
+      });
+    }
+    renderStats(s) {
+      const accuracy = s.totalAnswered ? Math.round((s.totalCorrect / s.totalAnswered) * 100) + '%' : '—';
+      const fav = Object.keys(s.lifelines).reduce((best, k) => (s.lifelines[k] > (s.lifelines[best] || 0) ? k : best), null);
+      const favLabel = fav && s.lifelines[fav] > 0 ? LIFELINE_NAMES[fav] : '—';
+      const items = [
+        ['Partidas', String(s.games)],
+        ['Mejor premio', fmtMoney(s.bestAmount)],
+        ['Precisión', accuracy],
+        ['Millones ganados', String(s.wins)],
+        ['Total acumulado', fmtMoney(s.totalWinnings)],
+        ['Comodín favorito', favLabel]
+      ];
+      this.el.stats.replaceChildren(...items.map(([dt, dd]) => {
+        const wrap = this.doc.createElement('div');
+        const t = this.doc.createElement('dt'); t.textContent = dt;
+        const d = this.doc.createElement('dd'); d.textContent = dd;
+        wrap.append(t, d);
+        return wrap;
+      }));
+    }
+
+    /* ----- Pantalla final ----- */
+    renderEnd({ reason, amount, correctCount, lifelinesUsed, rank, playerName, level, question, correctIndex }) {
+      const badge = this.$('#end-badge');
+      const texts = {
+        victory: { badge: 'Victoria', title: '¡' + playerName + ', ganaste el millón!', sub: 'Respondiste las 15 preguntas. Eres oficialmente Clave de Oro.' },
+        withdraw: { badge: 'Retirada', title: playerName + ', te retiraste a tiempo', sub: 'Te plantaste en la pregunta ' + level + ' y te llevas lo ganado hasta la anterior.' },
+        wrong: { badge: 'Respuesta incorrecta', title: 'Se acabó en la pregunta ' + level, sub: amount > 0 ? 'El piso seguro te protege: te llevas este premio.' : 'No llegaste a ningún piso seguro esta vez. ¡La próxima será!' },
+        timeout: { badge: 'Tiempo agotado', title: 'El reloj ganó en la pregunta ' + level, sub: amount > 0 ? 'Te llevas el último piso seguro que superaste.' : 'No llegaste a ningún piso seguro esta vez. ¡La próxima será!' }
+      };
+      const t = texts[reason];
+      if (playerName === 'Invitado') {
+        texts.victory.title = '¡Ganaste el millón!';
+        texts.withdraw.title = 'Te retiraste a tiempo';
+      }
+      badge.textContent = t.badge;
+      badge.className = 'r-badge ' + reason;
+      this.$('#end-title').textContent = t.title;
+      this.$('#end-sub').textContent = t.sub;
+      this.$('#end-correct').textContent = correctCount + '/15';
+      this.$('#end-lifelines').textContent = lifelinesUsed.length + '/4';
+      this.$('#end-rank').textContent = rank ? ('#' + rank) : 'Fuera del top 10';
+      const ans = this.$('#end-answer');
+      if (reason !== 'victory' && question) {
+        ans.replaceChildren('La respuesta correcta era ');
+        const b = this.doc.createElement('b');
+        b.textContent = LETTERS[correctIndex] + ': ' + question.options[correctIndex];
+        ans.append(b, '. ' + question.explanation);
+        ans.hidden = false;
+      } else {
+        ans.hidden = true;
+      }
+      this.countUp(this.$('#end-amount'), amount);
+    }
+    countUp(el, target) {
+      el.textContent = fmtMoney(0);
+      if (prefersReducedMotion() || target === 0) { el.textContent = fmtMoney(target); return; }
+      const start = performance.now();
+      const dur = 1400;
+      const step = (now) => {
+        const k = Math.max(0, Math.min(1, (now - start) / dur));
+        const ease = 1 - Math.pow(1 - k, 3);
+        el.textContent = fmtMoney(Math.round(target * ease));
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    /** Lluvia de notas doradas para la victoria (canvas). */
+    stopCelebration() {
+      this.fxToken = (this.fxToken || 0) + 1;
+      const canvas = this.el.fx;
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    celebrate(ms = 6000) {
+      if (prefersReducedMotion()) return;
+      this.stopCelebration();
+      const token = this.fxToken;
+      const canvas = this.el.fx;
+      const ctx = canvas.getContext('2d');
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const resize = () => {
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+      resize();
+      const colors = ['#fff0bf', '#e9c46a', '#9a7223', '#3fd8ff'];
+      const parts = Array.from({ length: 90 }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: -20 - Math.random() * window.innerHeight,
+        vy: 1.2 + Math.random() * 2.4,
+        vx: -0.6 + Math.random() * 1.2,
+        r: 4 + Math.random() * 5,
+        rot: Math.random() * Math.PI,
+        vr: -0.05 + Math.random() * 0.1,
+        color: colors[randInt(0, colors.length - 1)],
+        double: Math.random() < 0.35
+      }));
+      const end = performance.now() + ms;
+      const drawNote = (p) => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.r, p.r * 0.72, -0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(p.r * 0.9, -p.r * 0.2);
+        ctx.lineTo(p.r * 0.9, -p.r * 3.4);
+        if (p.double) {
+          ctx.lineTo(p.r * 3.4, -p.r * 4);
+          ctx.lineTo(p.r * 3.4, -p.r * 0.8);
+        } else {
+          ctx.quadraticCurveTo(p.r * 2.2, -p.r * 2.6, p.r * 1.9, -p.r * 1.4);
+        }
+        ctx.stroke();
+        if (p.double) {
+          ctx.beginPath();
+          ctx.ellipse(p.r * 2.5, -p.r * 0.6, p.r, p.r * 0.72, -0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      };
+      const frame = (now) => {
+        if (token !== this.fxToken) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const fading = now > end;
+        let alive = 0;
+        parts.forEach((p) => {
+          p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+          if (p.y > window.innerHeight + 30) {
+            if (!fading) { p.y = -20; p.x = Math.random() * window.innerWidth; } else return;
+          }
+          alive += 1;
+          drawNote(p);
+        });
+        if (alive > 0) requestAnimationFrame(frame);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      };
+      requestAnimationFrame(frame);
+    }
+  }
+
+  /* =========================================================================
+     7. GameController · conecta modelo (GameState), vista (UIManager), audio y almacenamiento
+     ========================================================================= */
+  class GameController {
+    constructor({ repo, state, audio, ui, storage }) {
+      this.repo = repo;
+      this.state = state;
+      this.audio = audio;
+      this.ui = ui;
+      this.storage = storage;
+      this.busy = false;
+      this.timers = [];
+      this.lastWholeSecond = null;
+      this.pendingConfirm = null;
+      this.phoneText = '';
+      this.lastEntryId = null;
+    }
+
+    init() {
+      const prefs = this.storage.getPrefs();
+      this.audio.muted = !!prefs.muted;
+      this.ui.setMuted(!!prefs.muted);
+      this.ui.setPlayerName(prefs.playerName);
+      this.refreshHome();
+      this.bindState();
+      this.bindDom();
+    }
+
+    later(fn, ms) {
+      const id = setTimeout(() => {
+        this.timers = this.timers.filter((x) => x !== id);
+        fn();
+      }, ms);
+      this.timers.push(id);
+      return id;
+    }
+    clearLater() {
+      this.timers.forEach((id) => clearTimeout(id));
+      this.timers = [];
+    }
+
+    refreshHome() {
+      this.ui.renderBoard(this.ui.el.boardStart, this.storage.getLeaderboard(), this.lastEntryId);
+      this.ui.renderStats(this.storage.getStats());
+    }
+
+    /* ----- Suscripción a eventos del modelo ----- */
+    bindState() {
+      const s = this.state;
+      s.on('question', (data) => {
+        this.busy = false;
+        this.lastWholeSecond = null;
+        this.ui.renderQuestion(data);
+        this.ui.setControlsEnabled(true, data.lifelines, data.level);
+        this.audio.questionStart();
+        this.audio.startTension();
+        this.ui.announce('Pregunta ' + data.level + ' por ' + fmtMoney(data.prize) + '. ' + data.question.text);
+      });
+      s.on('tick', ({ left, total }) => {
+        this.ui.renderTimer(left, total);
+        const whole = Math.ceil(left);
+        if (whole !== this.lastWholeSecond) {
+          this.lastWholeSecond = whole;
+          if (whole <= 10 && whole > 0 && s.is(STATES.QUESTION_ACTIVE) && s.timer.running) {
+            this.audio.setUrgency(true);
+            this.audio.tick();
+            if (whole === 10) this.ui.announce('Quedan 10 segundos');
+          }
+        }
+      });
+      s.on('select', ({ index }) => {
+        this.ui.markChosen(index);
+        this.ui.showConfirm(index, s.currentQuestion.options[index]);
+      });
+      s.on('revealed', (r) => this.onRevealed(r));
+      s.on('end', (outcome) => this.onEnd(outcome));
+    }
+
+    /* ----- Eventos del DOM ----- */
+    bindDom() {
+      const $ = this.ui.$;
+      this.ui.el.startForm.addEventListener('submit', (e) => { e.preventDefault(); this.startGame(); });
+      this.ui.answerBtns.forEach((btn) => btn.addEventListener('click', () => this.onAnswer(Number(btn.dataset.index))));
+      $('#btn-final').addEventListener('click', () => this.confirmAnswer());
+      $('#btn-rethink').addEventListener('click', () => this.rethink());
+      this.ui.lifelineBtns.forEach((btn) => btn.addEventListener('click', () => this.onLifeline(btn.dataset.lifeline)));
+      $('#btn-withdraw').addEventListener('click', () => this.onWithdraw());
+      $('#btn-fb-next').addEventListener('click', () => this.onFeedbackNext());
+      $('#btn-phone-close').addEventListener('click', () => this.closePhone());
+      $('#btn-phone-skip').addEventListener('click', () => {
+        if (!this.phoneText) return;
+        this.ui.phoneConnected();
+        this.ui.finishTyping($('#phone-speech'), this.phoneText);
+        $('#btn-phone-skip').hidden = true;
+      });
+      $('#btn-aud-close').addEventListener('click', () => this.closeAudience());
+      $('#btn-cf-ok').addEventListener('click', () => this.resolveConfirm(true));
+      $('#btn-cf-cancel').addEventListener('click', () => this.resolveConfirm(false));
+      $('#btn-again').addEventListener('click', () => this.startGame());
+      $('#btn-home').addEventListener('click', () => this.goHome());
+      $('#btn-reset').addEventListener('click', () => this.askReset());
+      this.ui.el.mute.addEventListener('click', () => this.toggleMute());
+      this.ui.el.ladderToggle.addEventListener('click', () => this.ui.toggleLadder());
+      $('#btn-ladder-close').addEventListener('click', () => this.ui.closeLadder());
+      this.ui.el.ladderScrim.addEventListener('click', () => this.ui.closeLadder());
+      // Cerrar modales al pulsar el fondo (excepto el de retroalimentación, que exige decisión).
+      ['modal-phone', 'modal-audience', 'modal-confirm'].forEach((id) => {
+        $('#' + id).addEventListener('click', (e) => { if (e.target.id === id) this.dismissModal(id); });
+      });
+      document.addEventListener('keydown', (e) => this.onKey(e));
+    }
+
+    onKey(e) {
+      this.ui.trapFocus(e);
+      if (e.key === 'Escape') {
+        if (this.ui.openModalId) { this.dismissModal(this.ui.openModalId); return; }
+        this.ui.closeLadder();
+        return;
+      }
+      if (this.ui.openModalId || this.ui.screens.game.hidden) return;
+      const tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+      const key = e.key.toLowerCase();
+      const map = { a: 0, b: 1, c: 2, d: 3, '1': 0, '2': 1, '3': 2, '4': 3 };
+      if (key in map) { e.preventDefault(); this.onAnswer(map[key]); return; }
+      if (e.key === 'Enter' && this.state.selected !== null && this.state.is(STATES.QUESTION_ACTIVE)) {
+        // Si el foco está en un botón, su clic nativo ya hace lo correcto.
+        if (tag === 'BUTTON') return;
+        e.preventDefault();
+        this.confirmAnswer();
+      }
+    }
+
+    dismissModal(id) {
+      if (id === 'modal-phone') this.closePhone();
+      else if (id === 'modal-audience') this.closeAudience();
+      else if (id === 'modal-confirm') this.resolveConfirm(false);
+      // modal-feedback no se cierra con Esc: requiere pulsar el botón.
+    }
+
+    toggleMute() {
+      const muted = !this.audio.muted;
+      this.audio.setMuted(muted);
+      this.ui.setMuted(muted);
+      this.storage.setPrefs({ muted });
+    }
+
+    /* ----- Flujo de partida ----- */
+    startGame() {
+      this.audio.init();
+      const name = this.ui.getPlayerName() || 'Invitado';
+      this.storage.setPrefs({ playerName: name === 'Invitado' ? '' : name });
+      this.clearLater();
+      this.audio.stopTension(0.05);
+      this.ui.closeAllModals();
+      this.ui.stopCelebration();
+      this.pendingConfirm = null;
+      this.busy = false;
+      const set = this.repo.buildGameSet();
+      this.ui.showScreen('game');
+      this.state.newGame(set, name);
+    }
+    goHome() {
+      this.clearLater();
+      this.audio.stopTension(0.05);
+      this.ui.closeAllModals();
+      this.ui.stopCelebration();
+      this.refreshHome();
+      this.ui.setLadderLabel(null);
+      this.ui.showScreen('start');
+      setTimeout(() => this.ui.el.playerName.focus(), 50);
+    }
+
+    onAnswer(index) {
+      const s = this.state;
+      if (this.busy || !s.is(STATES.QUESTION_ACTIVE) || s.removed.has(index)) return;
+      if (s.selected === index) { this.confirmAnswer(); return; }
+      if (s.select(index)) this.audio.click();
+    }
+    rethink() {
+      this.state.clearSelection();
+      this.ui.clearChosen();
+      this.ui.hideConfirm();
+    }
+    confirmAnswer() {
+      const s = this.state;
+      if (this.busy || !s.is(STATES.QUESTION_ACTIVE) || s.selected === null) return;
+      const index = s.selected;
+      this.busy = true;
+      this.ui.hideConfirm();
+      this.ui.setControlsEnabled(false, s.lifelines, s.level);
+      s.lockAnswer();
+      this.audio.stopTension(0.25);
+      this.audio.finalAnswer();
+      this.ui.setLocked(index);
+      this.ui.announce('Respuesta definitiva: ' + LETTERS[index]);
+      this.later(() => s.reveal(), SUSPENSE_MS);
+    }
+
+    onRevealed(r) {
+      const s = this.state;
+      this.busy = true;
+      this.audio.stopTension(0.2);
+      this.ui.hideConfirm();
+      this.ui.disableAll();
+      this.ui.setControlsEnabled(false, s.lifelines, s.level);
+      if (r.correct) {
+        this.ui.markCorrect(r.correctIndex);
+        this.audio.correct();
+      } else {
+        if (r.selected !== null) this.ui.markWrong(r.selected);
+        this.ui.markCorrect(r.correctIndex);
+        this.audio.wrong();
+        this.ui.renderLadder(r.level, { lostAt: r.level });
+      }
+      const q = r.question;
+      let data;
+      if (r.correct) {
+        const won = PRIZES[r.level - 1];
+        const isSafe = s.isSafeLevel(r.level);
+        const isLast = r.level === TOTAL_LEVELS;
+        data = {
+          ok: true,
+          badge: 'Correcto',
+          title: isLast ? '¡Correcto! Ganaste ' + fmtMoney(won) : '¡Correcto! Subes a ' + fmtMoney(won),
+          answerLetter: LETTERS[r.correctIndex],
+          answerText: q.options[r.correctIndex],
+          explanation: q.explanation,
+          money: isLast ? 'Respondiste las 15 preguntas de la escalera.' : (isSafe ? '¡Piso seguro! Pase lo que pase, ya te llevas ' + fmtMoney(won) + '.' : 'Siguiente pregunta: ' + fmtMoney(PRIZES[r.level]) + '.'),
+          moneySafe: isSafe || isLast,
+          buttonLabel: isLast ? 'Recoger el millón' : 'Siguiente pregunta'
+        };
+      } else {
+        const timeout = r.reason === 'timeout';
+        data = {
+          ok: false,
+          badge: timeout ? 'Tiempo agotado' : 'Incorrecto',
+          title: 'La respuesta correcta era la ' + LETTERS[r.correctIndex],
+          answerLetter: LETTERS[r.correctIndex],
+          answerText: q.options[r.correctIndex],
+          explanation: q.explanation,
+          money: s.guaranteed > 0 ? 'Te llevas el piso seguro: ' + fmtMoney(s.guaranteed) + '.' : 'No alcanzaste ningún piso seguro: te vas con $0.',
+          moneySafe: s.guaranteed > 0,
+          buttonLabel: 'Ver resultado'
+        };
+      }
+      this.ui.announce(data.badge + '. ' + data.title);
+      this.later(() => this.ui.showFeedback(data), r.correct ? 1700 : 1900);
+    }
+    onFeedbackNext() {
+      this.ui.closeModal('modal-feedback', false);
+      this.state.advance();
+    }
+
+    onEnd(outcome) {
+      const s = this.state;
+      this.clearLater();
+      this.audio.stopTension(0.1);
+      this.ui.closeAllModals();
+      if (outcome.reason === 'victory') this.audio.victory();
+      else if (outcome.reason === 'withdraw') this.audio.cashOut();
+      const answered = s.correctCount + ((outcome.reason === 'wrong' || outcome.reason === 'timeout') ? 1 : 0);
+      this.storage.recordGame({ amount: outcome.amount, correct: s.correctCount, answered, won: outcome.reason === 'victory', lifelinesUsed: s.lifelinesUsed });
+      const entry = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), name: s.playerName, amount: outcome.amount, correct: s.correctCount, date: Date.now() };
+      const { list, rank } = this.storage.addScore(entry);
+      this.lastEntryId = entry.id;
+      this.ui.renderEnd({
+        reason: outcome.reason,
+        amount: outcome.amount,
+        correctCount: s.correctCount,
+        lifelinesUsed: s.lifelinesUsed,
+        rank,
+        playerName: s.playerName,
+        level: outcome.level,
+        question: outcome.question,
+        correctIndex: outcome.correctIndex
+      });
+      this.ui.renderBoard(this.ui.el.boardEnd, list, entry.id, 5);
+      this.ui.setLadderLabel(null);
+      this.ui.showScreen('end');
+      if (outcome.reason === 'victory') this.ui.celebrate();
+      setTimeout(() => this.ui.$('#btn-again').focus(), 60);
+    }
+
+    /* ----- Retirarse ----- */
+    onWithdraw() {
+      const s = this.state;
+      if (this.busy || !s.is(STATES.QUESTION_ACTIVE)) return;
+      s.pauseTimer();
+      this.ui.setTimerPaused(true);
+      const risk = s.guaranteed;
+      this.pendingConfirm = {
+        onOk: () => { this.audio.stopTension(0.1); s.withdraw(); },
+        onCancel: () => { this.ui.setTimerPaused(false); s.resumeTimer(); }
+      };
+      this.ui.confirmDialog({
+        title: '¿Te retiras con ' + fmtMoney(s.banked) + '?',
+        body: 'Te llevarás lo ganado hasta la pregunta anterior. Si sigues jugando y fallas, bajarías a ' + fmtMoney(risk) + '. La pregunta actual vale ' + fmtMoney(s.prizeAtStake) + '.',
+        okLabel: 'Sí, me retiro',
+        cancelLabel: 'Seguir jugando'
+      });
+    }
+    askReset() {
+      this.pendingConfirm = {
+        onOk: () => {
+          this.storage.clearScores();
+          this.lastEntryId = null;
+          this.refreshHome();
+          this.ui.toast('Ranking y estadísticas borrados.');
+        },
+        onCancel: () => {}
+      };
+      this.ui.confirmDialog({
+        title: '¿Borrar ranking y estadísticas?',
+        body: 'Se eliminarán todas las puntuaciones y estadísticas guardadas en este navegador. No se puede deshacer.',
+        okLabel: 'Borrar datos',
+        cancelLabel: 'Cancelar',
+        danger: true
+      });
+    }
+    resolveConfirm(ok) {
+      const pending = this.pendingConfirm;
+      this.pendingConfirm = null;
+      this.ui.closeModal('modal-confirm', !ok);
+      if (!pending) return;
+      if (ok) pending.onOk(); else pending.onCancel();
+    }
+
+    /* ----- Comodines ----- */
+    onLifeline(name) {
+      const s = this.state;
+      if (this.busy || !s.is(STATES.QUESTION_ACTIVE)) return;
+      if (name === 'switch' && s.lifelines.switch && s.level < SWITCH_UNLOCK_LEVEL) {
+        this.ui.toast('El Cambio de Partitura se desbloquea en la pregunta ' + SWITCH_UNLOCK_LEVEL + '.');
+        return;
+      }
+      if (!s.canUse(name)) return;
+      this.ui.clearChosen();
+      this.ui.hideConfirm();
+      if (name === 'fifty') return this.useFifty();
+      if (name === 'phone') return this.usePhone();
+      if (name === 'audience') return this.useAudience();
+      if (name === 'switch') return this.useSwitch();
+    }
+    useFifty() {
+      const s = this.state;
+      const removed = s.useFifty();
+      if (!removed) return;
+      this.audio.lifeline();
+      this.ui.removeOptions(removed);
+      this.ui.renderLifelines(s.lifelines, s.level, true);
+      this.ui.announce('50:50. Se eliminaron las opciones ' + removed.map((i) => LETTERS[i]).sort().join(' y '));
+    }
+    usePhone() {
+      const s = this.state;
+      const data = s.usePhone();
+      if (!data) return;
+      this.busy = true;
+      s.pauseTimer();
+      this.ui.setTimerPaused(true);
+      this.ui.renderLifelines(s.lifelines, s.level, false);
+      this.audio.lifeline();
+      this.audio.ring();
+      const name = s.playerName === 'Invitado' ? '' : ', ' + s.playerName;
+      const text = data.isRight
+        ? '¡Hola' + name + '! Vamos a razonarlo como en clase. ' + data.hint + ' Por eso yo marcaría la ' + data.letter + ': «' + data.text + '». Estoy un ' + data.confidence + '% seguro.'
+        : '¡Hola' + name + '! Uf, esta tiene su trampa… Creo recordar que lo vimos en clase y me inclino por la ' + data.letter + ': «' + data.text + '». Pero no pondría la mano en el fuego: diría que estoy un ' + data.confidence + '% seguro.';
+      this.phoneText = text;
+      this.ui.openPhone();
+      this.later(() => {
+        if (this.ui.openModalId !== 'modal-phone') return;
+        this.ui.phoneConnected();
+        this.ui.typewrite(this.ui.$('#phone-speech'), text).then(() => { this.ui.$('#btn-phone-skip').hidden = true; });
+      }, 1300);
+    }
+    closePhone() {
+      if (this.ui.openModalId !== 'modal-phone') return;
+      this.ui.typeToken += 1;
+      this.phoneText = '';
+      this.ui.closeModal('modal-phone');
+      this.resumeAfterModal();
+    }
+    useAudience() {
+      const s = this.state;
+      const data = s.useAudience();
+      if (!data) return;
+      this.busy = true;
+      s.pauseTimer();
+      this.ui.setTimerPaused(true);
+      this.ui.renderLifelines(s.lifelines, s.level, false);
+      this.audio.lifeline();
+      this.ui.openAudience(data);
+    }
+    closeAudience() {
+      if (this.ui.openModalId !== 'modal-audience') return;
+      this.ui.closeModal('modal-audience');
+      this.resumeAfterModal();
+    }
+    resumeAfterModal() {
+      const s = this.state;
+      if (!s.is(STATES.QUESTION_ACTIVE)) return;
+      this.busy = false;
+      this.ui.setTimerPaused(false);
+      this.ui.renderLifelines(s.lifelines, s.level, true);
+      this.ui.el.withdrawBtn.disabled = false;
+      s.resumeTimer();
+    }
+    useSwitch() {
+      const s = this.state;
+      const res = s.useSwitch();
+      if (!res) { this.ui.toast('No quedan preguntas de reserva en este bloque.'); return; }
+      this.busy = true;
+      this.audio.stopTension(0.2);
+      this.audio.lifeline();
+      this.ui.setControlsEnabled(false, s.lifelines, s.level);
+      this.ui.disableAll();
+      this.ui.markCorrect(res.correctIndex);
+      this.ui.showNotice('Cambio de Partitura. La respuesta era la ' + LETTERS[res.correctIndex] + ': «' + res.old.options[res.correctIndex] + '». Preparando otra pregunta del mismo nivel…');
+      this.later(() => s.loadSwitchedQuestion(), 2600);
+    }
+  }
+
+  /* =========================================================================
+     8. Arranque
+     ========================================================================= */
+  const storage = new StorageService();
+  const repo = new QuestionRepository(QUESTION_BANK, storage);
+  const state = new GameState();
+  const audio = new AudioEngine();
+  const ui = new UIManager(document);
+  const controller = new GameController({ repo, state, audio, ui, storage });
+  controller.init();
+  ui.renderTimer(30, 30);
+})();
+</script>
